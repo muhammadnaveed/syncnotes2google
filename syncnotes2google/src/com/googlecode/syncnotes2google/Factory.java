@@ -88,10 +88,14 @@ public class Factory {
 			settings = new Settings();
 			settings.setGoogleAccountName("nnnn@gmail.com");
 			settings.setGooglePassword("****");
-			settings.setDominoServer("sever");
-			settings.setMailDbFilePath("mail.nsf");
+	        
+			// Notes File/Preferenses/Location Preferences.../Servers/'Home/mail server'
+	        settings.setDominoServer("sever");
+	        // Notes File/Preferenses/Location Preferences.../Mail/'Mail file'
+	        settings.setMailDbFilePath("mail.nsf");
 
-			settings.setCalendarName("Calendar");
+	        // Google calender name to sync with
+	        settings.setCalendarName("Calendar");
 
 			Calendar sdt = Calendar.getInstance();
 			sdt.add(Calendar.DAY_OF_YEAR, -14);
