@@ -3,74 +3,10 @@ package com.googlecode.syncnotes2google;
 import com.googlecode.syncnotes2google.dao.BaseDAO;
 import com.googlecode.syncnotes2google.dao.BaseDoc;
 import com.googlecode.syncnotes2google.dao.GoogleCalendarDAO;
-import com.googlecode.syncnotes2google.dao.NotesCalendarDAO;
 
 public class SyncService {
 
-	public void executeNotesToGoogle() {
-		BaseDAO fromDao = new NotesCalendarDAO();
-		BaseDAO toDao = new GoogleCalendarDAO();
-
-		Settings mySets = Factory.getSettings();
-
-		Factory.getLog().info("Start Notes to Google synchronization.");
-
-		BaseDoc entry = fromDao.getFirstEntry();
-		while (entry != null) {
-
-			String uid = entry.getRefId();
-			if (uid == null) {
-				if (mySets.getSyncDirection().equals(fromDao.getDirection()) || mySets.getSyncDirection().equals(Constants.BI_DIRECTION)) {
-
-					// Google don't accept too much number of recurrence date.
-					if (entry.getRecur() != null) {
-						if (entry.getRecur().getRdate() != null) {
-							if (entry.getRecur().getRdate().length > 100) {
-								Factory.getLog().warn("This type of entry is not supported by GooCalSync : " + entry.getTitle());
-								entry = fromDao.getNextEntry();
-								continue;
-							}
-						}
-					}
-					Factory.getLog().debug("executing insert: " + entry.getTitle());
-					insert(toDao, entry);
-				}
-			} else {
-				BaseDoc toEntry = toDao.select(uid);
-				if (toEntry == null) {
-					if (!mySets.getSyncDirection().equals(fromDao.getDirection())) {
-						Factory.getLog().debug("executing delete: " + entry.getTitle());
-						delete(fromDao, entry);
-					}
-				} else {
-					if (entry.getLastUpdated().after(mySets.getSyncLastDateTime())) {
-						if (mySets.getSyncDirection().equals(Constants.BI_DIRECTION)) {
-							// When both of google and notes calendar are updated, notes calendar is
-							// put before google.
-							// This is GooCalSync rule.
-							// So, update google calendar entry without checking if google calendar
-							// entry is newer than Notes.
-							Factory.getLog().debug("executing update (BI_DIRECTION): " + entry.getTitle());
-							update(toDao, entry);
-						} else if (mySets.getSyncDirection().equals(fromDao.getDirection())) {
-							Factory.getLog().debug("executing update (" + fromDao.getDirection() + "): " + entry.getTitle());
-							update(toDao, entry);
-						} else {
-							// In the case of GOOGLE_TO_NOTES, do nothing.
-						}
-					}
-				}
-			}
-
-			entry = fromDao.getNextEntry();
-		}
-
-	}
-
-	public void executeGoogleToNotes(BaseDAO fromDao, BaseDAO toDao) {
-		// BaseDAO fromDao = new GoogleCalendarDAO();
-		// BaseDAO toDao = new NotesCalendarDAO();
-
+	public void executeSync(BaseDAO fromDao, BaseDAO toDao) {
 		Settings mySets = Factory.getSettings();
 
 		Log l = Factory.getLog();
