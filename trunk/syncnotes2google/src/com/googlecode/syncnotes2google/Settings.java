@@ -1,4 +1,4 @@
-package goocalsync;
+package com.googlecode.syncnotes2google;
 
 import java.io.BufferedReader;
 import java.io.File;

@@ -1,10 +1,15 @@
-package goocalsync;
+package com.googlecode.syncnotes2google.dao;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
+
+import com.googlecode.syncnotes2google.Constants;
+import com.googlecode.syncnotes2google.Factory;
+import com.googlecode.syncnotes2google.GooCalUtil;
+import com.googlecode.syncnotes2google.IDTable;
 
 import de.bea.domingo.DDatabase;
 import de.bea.domingo.DDocument;

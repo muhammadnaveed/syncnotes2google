@@ -1,0 +1,7 @@
+			settings.setGoogleAccountName("henols@gmail.com");
+			settings.setGooglePassword("100ett");
+			settings.setDominoServer("STOM01/Intentia_SE/Intentia");
+			settings.setMailDbFilePath("mail\\se\\14892.nsf");
+
+			settings.setCalendarName("Lawson");
+

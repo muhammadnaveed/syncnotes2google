@@ -1,4 +1,9 @@
-package goocalsync;
+package com.googlecode.syncnotes2google;
+
+import com.googlecode.syncnotes2google.dao.BaseDAO;
+import com.googlecode.syncnotes2google.dao.BaseDoc;
+import com.googlecode.syncnotes2google.dao.GoogleCalendarDAO;
+import com.googlecode.syncnotes2google.dao.NotesCalendarDAO;
 
 public class SyncService {
 

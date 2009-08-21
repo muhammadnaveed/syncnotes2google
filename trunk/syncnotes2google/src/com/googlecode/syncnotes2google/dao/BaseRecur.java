@@ -1,6 +1,8 @@
-package goocalsync;
+package com.googlecode.syncnotes2google.dao;
 
 import java.util.Calendar;
+
+import com.googlecode.syncnotes2google.Constants;
 
 public class BaseRecur {
 
