@@ -6,8 +6,6 @@ import com.googlecode.syncnotes2google.dao.BaseDAO;
 import com.googlecode.syncnotes2google.dao.GoogleCalendarDAO;
 import com.googlecode.syncnotes2google.dao.NotesCalendarDAO;
 
-import lotus.domino.NotesException;
-
 public class GooCalSync {
 
 	public static void main(String[] args) throws IOException {
@@ -21,8 +19,8 @@ public class GooCalSync {
 			BaseDAO notesDao = new NotesCalendarDAO();
 
 			// ss.executeNotesToGoogle();
-			ss.executeGoogleToNotes(notesDao, googleDao);
-			ss.executeGoogleToNotes(googleDao, notesDao);
+			ss.executeSync(notesDao, googleDao);
+			ss.executeSync(googleDao, notesDao);
 
 			// Update Last Sync Execution Date & Time
 			Settings mySets = Factory.getSettings();
