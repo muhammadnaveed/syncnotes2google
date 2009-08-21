@@ -1,4 +1,4 @@
-package goocalsync;
+package com.googlecode.syncnotes2google;
 
 import java.text.DecimalFormat;
 import java.text.ParseException;
@@ -10,6 +10,7 @@ import lotus.domino.NotesException;
 
 import com.google.gdata.data.extensions.When;
 import com.google.gdata.data.extensions.Where;
+import com.googlecode.syncnotes2google.dao.BaseDoc;
 
 import de.bea.domingo.util.GregorianDateTime;
 import de.bea.domingo.util.GregorianDateTimeRange;
@@ -19,24 +20,6 @@ public class GooCalUtil {
 	private static final SimpleDateFormat dateFormat = new SimpleDateFormat(
 			"yyyy/MM/dd HH:mm");
 	private static Calendar SyncStartTime = null;
-
-	public static String getLocalTimeZoneStr() {
-
-		DecimalFormat df = new DecimalFormat("+00;-00");
-
-		try {
-			String tz = df.format(-(long) Factory.getInternational()
-					.getTimeZone());
-			return tz + ":00";
-		} catch (NotesException e) {
-			e.printStackTrace();
-			GooCalUtil.logStackTrace(e);
-			System.exit(-1);
-		}
-
-		return null;
-
-	}
 
 	public static String adjustXStoDST(String dt) {
 		return dt;
@@ -202,7 +185,7 @@ public class GooCalUtil {
 	}
 
 	/**
-	 * �J�����_�[�̊J�n�A�I���B�When�̍쐬 DateTime startTime =
+	 * �J�����_�[�̊J�n�A�I����?�B�When��?�?� DateTime startTime =
 	 * GooCalUtil.convDateTime("2009/04/14 10:00"); DateTime endTime =
 	 * GooCalUtil.convDateTime("2009/04/14 15:00"); When eventTimes =
 	 * GooCalUtil.createWhen(startTime, endTime);
@@ -221,7 +204,7 @@ public class GooCalUtil {
 	}
 
 	/**
-	 * �J�����_�[�̊J�n�A�I���B�When�̍쐬 When eventTimes =
+	 * �J�����_�[�̊J�n�A�I����?�B�When��?�?� When eventTimes =
 	 * GooCalUtil.createWhen("2009/04/14 10:00", "2009/04/14 15:00");
 	 * 
 	 * @param start
@@ -233,7 +216,7 @@ public class GooCalUtil {
 	}
 
 	/**
-	 * �J�����_�[��Location�B�Where�̍쐬 Where eventLocation =
+	 * �J�����_�[��Location��?�B�Where��?�?� Where eventLocation =
 	 * GooCalUtil.createWhere("Location");
 	 * 
 	 * @param location
@@ -244,7 +227,7 @@ public class GooCalUtil {
 	}
 
 	/**
-	 * �J�����_�[�p��DateTime�쐬
+	 * �J�����_�[�p��DateTime��?�
 	 * 
 	 * @param date
 	 * @return
@@ -256,7 +239,7 @@ public class GooCalUtil {
 					.parse(date));
 			dateTime.setTzShift(new Integer(9));
 		} catch (ParseException e) {
-			new Exception("��t�́u2008/02/28 12:00�v�`���Ŏw�肵�Ă��������B");
+			new Exception("��t��?u2008/02/28 12:00�v�`���Ŏw�肵�Ă��������B");
 			e.printStackTrace();
 			GooCalUtil.logStackTrace(e);
 			System.exit(-1);

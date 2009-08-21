@@ -1,4 +1,4 @@
-package goocalsync;
+package com.googlecode.syncnotes2google;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;

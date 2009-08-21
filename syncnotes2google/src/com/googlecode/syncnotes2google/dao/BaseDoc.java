@@ -1,7 +1,10 @@
-package goocalsync;
+package com.googlecode.syncnotes2google.dao;
 
 import java.text.DateFormat;
 import java.util.Calendar;
+
+import com.googlecode.syncnotes2google.Factory;
+import com.googlecode.syncnotes2google.Log;
 
 public class BaseDoc {
 

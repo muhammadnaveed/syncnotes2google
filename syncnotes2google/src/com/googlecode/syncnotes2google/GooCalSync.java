@@ -1,6 +1,10 @@
-package goocalsync;
+package com.googlecode.syncnotes2google;
 
 import java.io.IOException;
+
+import com.googlecode.syncnotes2google.dao.BaseDAO;
+import com.googlecode.syncnotes2google.dao.GoogleCalendarDAO;
+import com.googlecode.syncnotes2google.dao.NotesCalendarDAO;
 
 import lotus.domino.NotesException;
 

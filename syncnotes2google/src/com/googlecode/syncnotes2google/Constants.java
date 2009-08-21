@@ -1,4 +1,4 @@
-package goocalsync;
+package com.googlecode.syncnotes2google;
 
 import static java.util.Calendar.FRIDAY;
 import static java.util.Calendar.MONDAY;

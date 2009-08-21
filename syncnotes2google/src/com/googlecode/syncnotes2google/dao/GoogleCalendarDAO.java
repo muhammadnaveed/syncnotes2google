@@ -1,4 +1,4 @@
-package goocalsync;
+package com.googlecode.syncnotes2google.dao;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -26,6 +26,11 @@ import com.google.gdata.data.extensions.When;
 import com.google.gdata.data.extensions.Where;
 import com.google.gdata.util.ResourceNotFoundException;
 import com.google.gdata.util.ServiceException;
+import com.googlecode.syncnotes2google.Constants;
+import com.googlecode.syncnotes2google.Factory;
+import com.googlecode.syncnotes2google.GooCalUtil;
+import com.googlecode.syncnotes2google.IDTable;
+import com.googlecode.syncnotes2google.Settings;
 
 import de.bea.domingo.DViewEntry;
 

@@ -1,6 +1,7 @@
-package goocalsync;
+package com.googlecode.syncnotes2google.dao;
 
 import java.util.Calendar;
+
 
 public interface BaseDAO {
 

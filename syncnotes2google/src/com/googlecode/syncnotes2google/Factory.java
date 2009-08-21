@@ -1,4 +1,4 @@
-package goocalsync;
+package com.googlecode.syncnotes2google;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -7,6 +7,9 @@ import java.util.Calendar;
 import com.google.gdata.client.calendar.CalendarService;
 import com.google.gdata.data.extensions.Recurrence;
 import com.google.gdata.util.AuthenticationException;
+import com.googlecode.syncnotes2google.dao.BaseRecur;
+import com.googlecode.syncnotes2google.dao.GoogleCalendarDAO;
+import com.googlecode.syncnotes2google.dao.NotesCalendarDAO;
 
 import de.bea.domingo.DDatabase;
 import de.bea.domingo.DNotesException;
@@ -20,16 +23,10 @@ public class Factory {
 	private static DSession notesSession = null;
 	private static Settings settings = null;
 	private static CalendarService calendarService = null;
-	private static URL postURL = null;
-	private static String eventURL = null;
 	private static GoogleCalendarDAO googleCalendarDAO = null;
 	private static NotesCalendarDAO notesCalendarDAO = null;
 	private static DDatabase gcsDatabase = null;
 	private static DDatabase mailDatabase = null;
-	private static IDTable idTable = null;
-	private static Recurrence recur = null;
-	private static BaseRecur baseRecur = null;
-	private static lotus.domino.International international = null;
 
 	// Terada add for LOG BEGIN
 	private static Log log = null;
@@ -247,19 +244,6 @@ public class Factory {
 		}
 		return mailDatabase;
 
-	}
-
-	public static lotus.domino.International getInternational() {
-		// try {
-		// if (international == null) {
-		// // international = getNotesSession().getInternational();
-		// }
-		// } catch (DNotesException e) {
-		// e.printStackTrace();
-		// GooCalUtil.logStackTrace(e);
-		// System.exit(-1);
-		// }
-		return international;
 	}
 
 }
