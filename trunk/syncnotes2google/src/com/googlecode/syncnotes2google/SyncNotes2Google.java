@@ -1,16 +1,17 @@
 package com.googlecode.syncnotes2google;
 
 import java.io.IOException;
+import java.util.Calendar;
 
 import com.googlecode.syncnotes2google.dao.BaseDAO;
 import com.googlecode.syncnotes2google.dao.GoogleCalendarDAO;
 import com.googlecode.syncnotes2google.dao.NotesCalendarDAO;
 
-public class GooCalSync {
+public class SyncNotes2Google {
 
 	public static void main(String[] args) throws IOException {
 
-		Factory.getLog().info("GooCalSync v0.919 has started.");
+		System.out.println("SyncNotes2Google has started.");
 
 		try {
 			// Execute synchronization
@@ -23,8 +24,8 @@ public class GooCalSync {
 			ss.executeSync(googleDao, notesDao);
 
 			// Update Last Sync Execution Date & Time
-			Settings mySets = Factory.getSettings();
-			mySets.setSyncLastDateTime(GooCalUtil.getNow());
+			Settings mySets = Factory.getInstance().getSettings();
+			mySets.setSyncLastDateTime(Calendar.getInstance());
 			mySets.saveSetDoc();
 		} finally {
 			IDTable.save();
@@ -34,7 +35,7 @@ public class GooCalSync {
 		// If don't do this, Notes initialization failure would occur after several executions.
 		// Factory.freeNotesObject();
 
-		Factory.getLog().info("GooCalSync has ended.");
+		System.out.println("SyncNotes2Google has ended.");
 
 	}
 

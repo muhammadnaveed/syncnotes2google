@@ -3,9 +3,6 @@ package com.googlecode.syncnotes2google.dao;
 import java.text.DateFormat;
 import java.util.Calendar;
 
-import com.googlecode.syncnotes2google.Factory;
-import com.googlecode.syncnotes2google.Log;
-
 public class BaseDoc {
 
 	private String id;
@@ -30,42 +27,20 @@ public class BaseDoc {
 		l.append("endDateTime    : " + df.format(endDateTime.getTime()) + "\n");
 		l.append("location       : " + location + "\n");
 		l.append("lastupdated    : " + (lastupdated==null?"":df.format(lastupdated.getTime())) + "\n");
-		l.append("apptype        : " + Integer.toString(apptype) + "\n");
+		l.append("apptype        : " + apptype + "\n");
 		if (recur != null) {
-			l.append("frequency      : " + Integer.toString(recur.getFrequency()) + "\n");
-			l.append("interval       : " + Integer.toString(recur.getInterval()) + "\n");
-			l.append("until          : " + recur.getUntil() + "\n");
+			l.append("frequency      : " + recur.getFrequency() + "\n");
+			l.append("interval       : " + recur.getInterval() + "\n");
+			if(recur.getUntil()!= null){
+			l.append("until          : " + df.format(recur.getUntil().getTime()) + "\n");
+			}
 			if (recur.getRdate() != null) {
 				for (Calendar s : recur.getRdate()) {
-					l.append("rdate          : " + s + "\n");
+					l.append("rdate          : " + df.format(s.getTime()) + "\n");
 				}
 			}
 		}
 		return l.toString();
-	}
-
-	public void printError() {
-
-		Log l = Factory.getLog();
-
-		l.error("ID             : " + id);
-		l.error("Title          : " + title);
-		l.error("Content        : " + content);
-		l.error("startDateTime  : " + startDateTime);
-		l.error("endDateTime    : " + endDateTime);
-		l.error("location       : " + location);
-		l.error("lastupdated    : " + lastupdated);
-		l.error("apptype        : " + Integer.toString(apptype));
-		if (recur != null) {
-			l.error("frequency      : " + Integer.toString(recur.getFrequency()));
-			l.error("interval       : " + Integer.toString(recur.getInterval()));
-			l.error("until          : " + recur.getUntil());
-			if (recur.getRdate() != null) {
-				for (Calendar s : recur.getRdate()) {
-					l.error("rdate          : " + s);
-				}
-			}
-		}
 	}
 
 	public String getId() {

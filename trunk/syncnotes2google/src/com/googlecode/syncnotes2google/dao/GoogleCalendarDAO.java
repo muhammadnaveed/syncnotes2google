@@ -3,11 +3,8 @@ package com.googlecode.syncnotes2google.dao;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.TimeZone;
 
@@ -28,11 +25,8 @@ import com.google.gdata.util.ResourceNotFoundException;
 import com.google.gdata.util.ServiceException;
 import com.googlecode.syncnotes2google.Constants;
 import com.googlecode.syncnotes2google.Factory;
-import com.googlecode.syncnotes2google.GooCalUtil;
 import com.googlecode.syncnotes2google.IDTable;
 import com.googlecode.syncnotes2google.Settings;
-
-import de.bea.domingo.DViewEntry;
 
 public class GoogleCalendarDAO implements BaseDAO {
 	private CalendarEventEntry workEntry = null;
@@ -44,9 +38,10 @@ public class GoogleCalendarDAO implements BaseDAO {
 
 	public String getCalendarAddress() {
 		if (calendarAddress == null) {
-			Settings settings = Factory.getSettings();
+			Factory factory = Factory.getInstance();
+			Settings settings = factory.getSettings();
 			calendarAddress = settings.getGoogleAccountName();
-			CalendarService myService = Factory.getCalendarService();
+			CalendarService myService = factory.getCalendarService();
 			// Send the request and print the response
 			URL feedUrl;
 			try {
@@ -73,9 +68,10 @@ public class GoogleCalendarDAO implements BaseDAO {
 		myEntry.setTitle(new PlainTextConstruct(bd.getTitle()));
 		myEntry.setContent(new PlainTextConstruct(bd.getContent()));
 
-		Calendar startDateTime = bd.getStartDateTime();
-		DateTime startTime = new DateTime(startDateTime.getTime(), startDateTime.getTimeZone());
-		DateTime endTime = new DateTime(bd.getEndDateTime().getTime(), bd.getEndDateTime().getTimeZone());
+		Calendar sdt = bd.getStartDateTime();
+		DateTime startTime = new DateTime(sdt.getTime(), sdt.getTimeZone());
+		Calendar edt = bd.getEndDateTime();
+		DateTime endTime = new DateTime(edt.getTime(), edt.getTimeZone());
 		if (bd.getApptype() == Constants.ALL_DAY_EVENT || bd.getApptype() == Constants.ANNIVERSARY) {
 
 			// 144000000 is not one day. So comment these lines.
@@ -86,7 +82,10 @@ public class GoogleCalendarDAO implements BaseDAO {
 
 			// if GMT+5 up, then add 1 day.
 			// These steps are for all day event specification on Google.
-			if (startTime.getTzShift() >= 300) {
+			
+			startTime.setDateOnly(true);
+			endTime.setDateOnly(true);
+			if (startTime.getTzShift() > 0) {
 				startTime.setValue(startTime.getValue() + 86400000); // 86400000 is one day as a
 				// long value.
 				endTime.setValue(endTime.getValue() + 172800000); // All day event must be specified
@@ -94,20 +93,23 @@ public class GoogleCalendarDAO implements BaseDAO {
 			} else {
 				endTime.setValue(endTime.getValue() + 86400000);
 			}
-
-			startTime.setDateOnly(true);
-			endTime.setDateOnly(true);
 		}
 
-		Where location = GooCalUtil.createWhere(bd.getLocation());
+		String loc = bd.getLocation();
+		Where location = new Where(loc, loc, loc);
 		myEntry.addLocation(location);
 
 		// set reccurence
-		if (bd.getRecur().getFrequency() != Constants.FREQ_NONE) {
+		if (bd.getRecur().getFrequency() != Constants.FREQ_NONE && bd.getApptype() != Constants.ALL_DAY_EVENT) {
 			Recurrence recur = new Recurrence();
 			recur.setValue(createRecurStr(bd));
 			myEntry.setRecurrence(recur);
-		}else {
+		} else if(bd.getApptype() == Constants.ALL_DAY_EVENT){
+			When eventTimes = new When();
+			eventTimes.setStartTime(startTime);
+			eventTimes.setEndTime(endTime);
+			myEntry.addTime(eventTimes);
+		}else{
 			When eventTimes = new When();
 			eventTimes.setStartTime(startTime);
 			eventTimes.setEndTime(endTime);
@@ -115,15 +117,15 @@ public class GoogleCalendarDAO implements BaseDAO {
 		}
 
 		try {
-			CalendarService cs = Factory.getCalendarService();
+			Factory factory = Factory.getInstance();
+			CalendarService cs = factory.getCalendarService();
 			EventEntry insertedEntry = cs.insert(getPostURL(), myEntry);
 			String id = insertedEntry.getId();
 			return id.replace(getEventURL(), "");
 		} catch (Exception e) {
-			Factory.getLog().error("Calendar entry being handled ...");
-			bd.printError();
+			System.out.println("Calendar entry being handled ...");
+			System.out.println(bd);
 			e.printStackTrace();
-			GooCalUtil.logStackTrace(e);
 			System.exit(-1);
 		}
 		return null;
@@ -162,7 +164,7 @@ public class GoogleCalendarDAO implements BaseDAO {
 
 					// if GMT+5 up, then add 1 day.
 					// These steps are for all day event specification on Google.
-					if (startTime.getTzShift() >= 300) {
+					if (startTime.getTzShift() > 0) {
 						startTime.setValue(startTime.getValue() + 86400000); // 86400000 is one day
 						// as a long value.
 						endTime.setValue(endTime.getValue() + 172800000); // All day event must be
@@ -177,43 +179,45 @@ public class GoogleCalendarDAO implements BaseDAO {
 					when.setStartTime(startTime);
 					when.setEndTime(endTime);
 				} else {
-					DateTime startTime = new DateTime(bd.getStartDateTime().getTime(), bd.getStartDateTime().getTimeZone());
-					DateTime endTime = new DateTime(bd.getEndDateTime().getTime(), bd.getEndDateTime().getTimeZone());
+					// when.setStartTime(new DateTime(bd.getStartDateTime().getTime(),
+					// bd.getStartDateTime().getTimeZone()));
+					// when.setEndTime(new DateTime(bd.getEndDateTime().getTime(),
+					// bd.getEndDateTime().getTimeZone()));
 				}
 			}
 
 			URL editUrl = new URL(workEntry.getEditLink().getHref());
-			Where location = GooCalUtil.createWhere(bd.getLocation());
 			workEntry.getLocations().get(0).setLabel(bd.getLocation());
 			workEntry.getLocations().get(0).setRel(bd.getLocation());
 			workEntry.getLocations().get(0).setValueString(bd.getLocation());
+
+			String loc = bd.getLocation();
+			Where location = new Where(loc, loc, loc);
 			workEntry.addLocation(location);
 
-			CalendarEventEntry updatedEntry = (CalendarEventEntry) Factory.getCalendarService().update(editUrl, workEntry);
+			CalendarEventEntry updatedEntry = (CalendarEventEntry) Factory.getInstance().getCalendarService().update(editUrl, workEntry);
 
 		} catch (MalformedURLException e) {
-			Factory.getLog().error("Calendar entry being handled ...");
-			bd.printError();
+			System.out.println("Calendar entry being handled ...");
+			System.out.println(bd);
 			e.printStackTrace();
-			GooCalUtil.logStackTrace(e);
 			System.exit(-1);
 		} catch (Exception e) {
-			Factory.getLog().error("Calendar entry being handled ...");
-			bd.printError();
+			System.out.println("Calendar entry being handled ...");
+			System.out.println(bd);
 			e.printStackTrace();
-			GooCalUtil.logStackTrace(e);
 			System.exit(-1);
 		}
 	}
 
 	public BaseDoc select(String id) {
 
-		Settings mySets = Factory.getSettings();
+		Factory factory = Factory.getInstance();
 		URL entryUrl;
 		workEntry = null;
 		try {
 			entryUrl = new URL("http://www.google.com/calendar/feeds/" + getCalendarAddress() + "/private/full/" + id);
-			CalendarService cs = Factory.getCalendarService();
+			CalendarService cs = factory.getCalendarService();
 			workEntry = (CalendarEventEntry) cs.getEntry(entryUrl, CalendarEventEntry.class);
 			if (workEntry == null) {
 				return null;
@@ -224,15 +228,12 @@ public class GoogleCalendarDAO implements BaseDAO {
 			return null;
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
-			GooCalUtil.logStackTrace(e);
 			System.exit(-1);
 		} catch (IOException e) {
 			e.printStackTrace();
-			GooCalUtil.logStackTrace(e);
 			System.exit(-1);
 		} catch (ServiceException e) {
 			e.printStackTrace();
-			GooCalUtil.logStackTrace(e);
 			System.exit(-1);
 		}
 		return null;
@@ -247,28 +248,24 @@ public class GoogleCalendarDAO implements BaseDAO {
 	 */
 	public void delete(String id) {
 
-		Settings mySets = Factory.getSettings();
+		Factory factory = Factory.getInstance();
 		URL entryUrl;
 		workEntry = null;
 		try {
-			CalendarService cs = Factory.getCalendarService();
+			CalendarService cs = factory.getCalendarService();
 			entryUrl = new URL("http://www.google.com/calendar/feeds/" + getCalendarAddress() + "/private/full/" + id);
 			CalendarEventEntry cee = (CalendarEventEntry) cs.getEntry(entryUrl, CalendarEventEntry.class);
 			cee.delete();
 		} catch (ResourceNotFoundException e) {
 			e.printStackTrace();
-			GooCalUtil.logStackTrace(e);
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
-			GooCalUtil.logStackTrace(e);
 			System.exit(-1);
 		} catch (IOException e) {
 			e.printStackTrace();
-			GooCalUtil.logStackTrace(e);
 			System.exit(-1);
 		} catch (ServiceException e) {
 			e.printStackTrace();
-			GooCalUtil.logStackTrace(e);
 			System.exit(-1);
 		}
 
@@ -285,12 +282,12 @@ public class GoogleCalendarDAO implements BaseDAO {
 	 */
 	public BaseDoc getFirstEntry() {
 
-		Settings mySets = Factory.getSettings();
+		Factory factory = Factory.getInstance();
 		URL entryUrl;
 		workEntry = null;
 		try {
 			entryUrl = new URL("http://www.google.com/calendar/feeds/" + getCalendarAddress() + "/private/full/");
-			CalendarService cs = Factory.getCalendarService();
+			CalendarService cs = factory.getCalendarService();
 
 			// Set query parameters to specify
 			// Date from which GooCalSync start synchronize calendar entries.
@@ -299,7 +296,7 @@ public class GoogleCalendarDAO implements BaseDAO {
 			// retrieved actually.
 			// recurrence calendar entry retrieved as single entry with recurrence information.
 			CalendarQuery myQuery = new CalendarQuery(entryUrl);
-			Calendar sdt = Factory.getSettings().getSyncStartDate();
+			Calendar sdt = factory.getSettings().getSyncStartDate();
 
 			myQuery.setMinimumStartTime(new DateTime(sdt.getTime(), sdt.getTimeZone()));
 			myQuery.setStringCustomParameter("orderby", "starttime");
@@ -332,7 +329,6 @@ public class GoogleCalendarDAO implements BaseDAO {
 			return null;
 		} catch (Exception e) {
 			e.printStackTrace();
-			GooCalUtil.logStackTrace(e);
 			System.exit(-1);
 		}
 		return null;
@@ -368,7 +364,7 @@ public class GoogleCalendarDAO implements BaseDAO {
 		bd.setContent(entry.getPlainTextContent());
 		bd.setId(entry.getId().replace(getEventURL(), ""));
 		bd.setRefId(IDTable.getNotesUNID(bd.getId()));
-		
+
 		bd.setLocation(entry.getLocations().get(0).getValueString());
 		Calendar u = Calendar.getInstance();
 		u.setTimeInMillis(entry.getUpdated().getValue());
@@ -405,7 +401,6 @@ public class GoogleCalendarDAO implements BaseDAO {
 	}
 
 	private Calendar getCalendar(DateTime sdt) {
-		DateFormat df = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.FULL);
 		Calendar c = Calendar.getInstance();
 		if (sdt.getTzShift() == null) {
 			c.setTimeInMillis(sdt.getValue());
@@ -510,7 +505,7 @@ public class GoogleCalendarDAO implements BaseDAO {
 
 		// Start timezone
 		Calendar sdt = bd.getStartDateTime();
-		rs = rs + "TZID=" + TimeZone.getAvailableIDs(sdt.getTimeZone().getRawOffset())[0] + ":";
+		rs = rs + "TZID=" + sdt.getTimeZone().getID() + ":";
 
 		// Start date&time
 		String dt = null;
@@ -522,25 +517,23 @@ public class GoogleCalendarDAO implements BaseDAO {
 		rs = rs + dt + "\r\n";
 
 		// End
-		rs = rs + "DTEND;";
-
 		// End timezone
 		Calendar edt = bd.getEndDateTime();
-		rs = rs + "TZID=" + TimeZone.getAvailableIDs(edt.getTimeZone().getRawOffset())[0] + ":";
 
 		// Enbd date&time
 		if (bd.getApptype() == Constants.ALL_DAY_EVENT || bd.getApptype() == Constants.ANNIVERSARY) {
 			dt = DATE.format(edt.getTime());
 		} else {
 			dt = DATE_TIME.format(edt.getTime());
+			rs += "DTEND;" + "TZID=" + edt.getTimeZone().getID() + ":" + dt + "\r\n";
 		}
-		rs = rs + dt + "\r\n";
 
 		// Recurrence rule
-		if (bd.getRecur().getFrequency() == Constants.FREQ_OTHER) {
+		BaseRecur recur = bd.getRecur();
+		if (recur.getFrequency() == Constants.FREQ_OTHER) {
 			rs = rs + "RDATE;VALUE=PERIOD:";
 			long delta = edt.getTimeInMillis() - sdt.getTimeInMillis();
-			for (Calendar rSdt : bd.getRecur().getRdate()) {
+			for (Calendar rSdt : recur.getRdate()) {
 				Calendar rEdt = Calendar.getInstance();
 				rEdt.setTimeInMillis(rSdt.getTimeInMillis() + delta);
 				Object sSdt;
@@ -557,13 +550,13 @@ public class GoogleCalendarDAO implements BaseDAO {
 			rs = rs.substring(0, rs.length() - 1);
 		} else {
 			rs = rs + "RRULE:";
-			switch (bd.getRecur().getFrequency()) {
+			switch (recur.getFrequency()) {
 			case Constants.FREQ_DAILY:
 				rs = rs + "FREQ=DAILY;";
 				break;
 			case Constants.FREQ_WEEKLY:
 				rs = rs + "FREQ=WEEKLY;WKST=MO;";
-				if (bd.getRecur().getInterval() == 2) {
+				if (recur.getInterval() == 2) {
 					rs = rs + "INTERVAL=2;";
 				}
 				break;
@@ -574,8 +567,12 @@ public class GoogleCalendarDAO implements BaseDAO {
 				rs = rs + "FREQ=YEARLY;";
 				break;
 			}
-			dt = DATE_TIME.format(bd.getRecur().getUntil().getTime());
-			rs = rs + "UNTIL=" + dt + "Z";
+			Calendar until = recur.getUntil();
+			if (bd.getApptype() == Constants.ALL_DAY_EVENT || bd.getApptype() == Constants.ANNIVERSARY) {
+				rs += "COUNT=" + recur.getCount();
+			} else {
+				rs += "UNTIL=" + DATE_TIME.format(until.getTime()) + "Z";
+			}
 		}
 		return rs;
 	}
@@ -586,7 +583,6 @@ public class GoogleCalendarDAO implements BaseDAO {
 				postURL = new URL("http://www.google.com/calendar/feeds/" + getCalendarAddress() + "/private/full");
 			} catch (MalformedURLException e) {
 				e.printStackTrace();
-				GooCalUtil.logStackTrace(e);
 				System.exit(-1);
 			}
 		}
@@ -595,7 +591,6 @@ public class GoogleCalendarDAO implements BaseDAO {
 
 	private String getEventURL() {
 		if (eventURL == null) {
-			Settings mySets = Factory.getSettings();
 			eventURL = "http://www.google.com/calendar/feeds/" + getCalendarAddress() + "/events/";
 			eventURL = eventURL.replace("@", "%40");
 		}
