@@ -86,10 +86,10 @@ public class NotesCalendarDAO implements BaseDAO {
 							continue loop;
 						}
 					}
-					displayDoc(workDoc);
+//					displayDoc(workDoc);
 
 					calDoc.add(convDoc);
-					System.out.println(convDoc.getTitle());
+//					System.out.println(convDoc.getTitle());
 				}
 			}
 		}
