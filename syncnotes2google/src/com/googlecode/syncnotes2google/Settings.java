@@ -7,7 +7,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Calendar;
-import java.util.Vector;
 
 import lotus.domino.Document;
 
@@ -18,7 +17,7 @@ public class Settings {
 	private String calendarName;
 	private String DominoServer;
 	private String MailDbFilePath;
-	private Calendar syncStartDate; // xs:date format ex) 2009-05-20T12:00:00+09:00
+	private Calendar syncStartDate;
 	private Calendar syncEndDate;
 	private String SyncDirection;
 	private String SyncDelete;
@@ -29,8 +28,7 @@ public class Settings {
 	private String ProxyPort;
 	private String ProxyUserName;
 	private String ProxyPassword;
-
-	private String LogMode;
+	private Calendar syncStart;
 
 	public Settings() {
 		try {
@@ -45,6 +43,7 @@ public class Settings {
 			if (line != null) {
 				syncLastDateTime.setTimeInMillis(Long.parseLong(line.trim()));
 			}
+			syncStart = Calendar.getInstance();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -99,6 +98,7 @@ public class Settings {
 	}
 
 	public String getSyncDirection() {
+//		return Constants.NOTES_TO_GOOGLE;
 		return Constants.BI_DIRECTION;
 	}
 
@@ -106,13 +106,6 @@ public class Settings {
 		SyncDirection = syncDirection;
 	}
 
-	public String getSyncDelete() {
-		return SyncDelete;
-	}
-
-	public void setSyncDelete(String syncDelete) {
-		SyncDelete = syncDelete;
-	}
 
 	public String getSyncPriority() {
 		return SyncPriority;
@@ -126,14 +119,6 @@ public class Settings {
 		this.syncLastDateTime = syncLastDateTime;
 	}
 
-	public void setSetDoc(Document doc) {
-		this.setDoc = doc;
-	}
-
-	public Document getSetDoc() {
-		return setDoc;
-	}
-
 	public void saveSetDoc() {
 		// Todo save setings
 		try {
@@ -143,23 +128,6 @@ public class Settings {
 			fw.close();
 		} catch (Exception e) {
 		}
-	}
-
-	public Vector getLogLevel() {
-		Vector v = new Vector();
-		v.add(Log.ERROR);
-		v.add(Log.WARN);
-		v.add(Log.INFO);
-		v.add(Log.DEBUG);
-		return v;
-	}
-
-	public String getLogMode() {
-		return LogMode;
-	}
-
-	public void setLogMode(String logMode) {
-		LogMode = logMode;
 	}
 
 	public void setProxyHost(String proxyHost) {
@@ -202,4 +170,7 @@ public class Settings {
 		this.calendarName = calendarName;
 	}
 
+	public Calendar getSyncStart() {
+		return syncStart;
+	}
 }

@@ -8,7 +8,6 @@ import java.util.Vector;
 
 import com.googlecode.syncnotes2google.Constants;
 import com.googlecode.syncnotes2google.Factory;
-import com.googlecode.syncnotes2google.GooCalUtil;
 import com.googlecode.syncnotes2google.IDTable;
 
 import de.bea.domingo.DDatabase;
@@ -28,7 +27,7 @@ public class NotesCalendarDAO implements BaseDAO {
 	public void delete(String unid) {
 
 		// try{
-		DDocument doc = Factory.getMailDatabase().getDocumentByUNID(unid);
+		DDocument doc = Factory.getInstance().getMailDatabase().getDocumentByUNID(unid);
 		if (doc != null) {
 			doc.remove(true);
 			workDoc = null;
@@ -45,7 +44,7 @@ public class NotesCalendarDAO implements BaseDAO {
 	public BaseDoc getFirstEntry() {
 
 		// try {
-		DDatabase mailDb = Factory.getMailDatabase();
+		DDatabase mailDb = Factory.getInstance().getMailDatabase();
 		if (calView == null) {
 			calView = mailDb.getView(Constants.NOTES_CALENDAR_VIEW);
 		}
@@ -58,15 +57,17 @@ public class NotesCalendarDAO implements BaseDAO {
 		// syncStartDate.substring(8, 10) + intl.getDateSep() +
 		// syncStartDate.substring(0, 4);
 		// DateTime sdt = Factory.getNotesSession().createDateTime(syncSt);
-		Calendar sdt = Factory.getSettings().getSyncStartDate();
-		Calendar edt = Factory.getSettings().getSyncEndDate();
+		Factory factory = Factory.getInstance();
+
+		Calendar sdt = factory.getSettings().getSyncStartDate();
+		Calendar edt = factory.getSettings().getSyncEndDate();
 		Iterator<DViewEntry> viewEntrys = (Iterator<DViewEntry>) calView.getAllEntriesByKey(sdt, edt, false);
 
-		while (viewEntrys.hasNext()) {
+		loop: while (viewEntrys.hasNext()) {
 			DViewEntry viewEntry = viewEntrys.next();
 			DDocument workDoc = viewEntry.getDocument();
 
-			if (GooCalUtil.convNull(workDoc.getItemValueString("Form")).equals("Appointment")) {
+			if ("Appointment".equals(workDoc.getItemValueString("Form"))) {
 				// GregorianDateTimeRange dt = (GregorianDateTimeRange)
 				// workDoc.getItemValue("StartDateTime").get(0);
 				// if (dt.getFrom().before(sdt)) {
@@ -80,7 +81,15 @@ public class NotesCalendarDAO implements BaseDAO {
 
 				BaseDoc convDoc = convDoc(workDoc);
 				if (convDoc != null) {
+					for (BaseDoc bd : calDoc) {
+						if (bd.getId().equals(convDoc.getId())) {
+							continue loop;
+						}
+					}
+					displayDoc(workDoc);
+
 					calDoc.add(convDoc);
+					System.out.println(convDoc.getTitle());
 				}
 			}
 		}
@@ -101,7 +110,7 @@ public class NotesCalendarDAO implements BaseDAO {
 	public String insert(BaseDoc bd) {
 
 		// try {
-		DDocument doc = Factory.getMailDatabase().createDocument();
+		DDocument doc = Factory.getInstance().getMailDatabase().createDocument();
 		doc.appendItemValue("Form", "Appointment");
 		doc.appendItemValue("Subject", bd.getTitle());
 		doc.appendItemValue("Body", bd.getContent());
@@ -163,7 +172,7 @@ public class NotesCalendarDAO implements BaseDAO {
 	public BaseDoc select(String unid) {
 
 		try {
-			workDoc = Factory.getMailDatabase().getDocumentByUNID(unid);
+			workDoc = Factory.getInstance().getMailDatabase().getDocumentByUNID(unid);
 			if (workDoc != null) {
 				// setWorkDocNext();
 				BaseDoc bd = convDoc(workDoc);
@@ -188,13 +197,13 @@ public class NotesCalendarDAO implements BaseDAO {
 		workDoc.replaceItemValue("Subject", bd.getTitle());
 		workDoc.replaceItemValue("Body", bd.getContent());
 		workDoc.replaceItemValue("Location", bd.getLocation());
-		workDoc.replaceItemValue("StartDateTime", new GregorianDateTime(bd.getStartDateTime()));
-		workDoc.replaceItemValue("StartDate", new GregorianDateTime(bd.getStartDateTime()));
-		workDoc.replaceItemValue("StartTime", new GregorianDateTime(bd.getStartDateTime()));
-		workDoc.replaceItemValue("EndDateTime", new GregorianDateTime(bd.getEndDateTime()));
-		workDoc.replaceItemValue("EndDate", new GregorianDateTime(bd.getEndDateTime()));
-		workDoc.replaceItemValue("EndTime", new GregorianDateTime(bd.getEndDateTime()));
-		workDoc.replaceItemValue("AppointmentType", Integer.toString(bd.getApptype()));
+		workDoc.replaceItemValue("StartDateTime", bd.getStartDateTime());
+		workDoc.replaceItemValue("StartDate", bd.getStartDateTime());
+		workDoc.replaceItemValue("StartTime", bd.getStartDateTime());
+		workDoc.replaceItemValue("EndDateTime", bd.getEndDateTime());
+		workDoc.replaceItemValue("EndDate", bd.getEndDateTime());
+		workDoc.replaceItemValue("EndTime", bd.getEndDateTime());
+//		workDoc.replaceItemValue("AppointmentType", Integer.toString(bd.getApptype()));
 
 		switch (bd.getApptype()) {
 		case Constants.ALL_DAY_EVENT:
@@ -241,23 +250,24 @@ public class NotesCalendarDAO implements BaseDAO {
 	}
 
 	private BaseDoc convDoc(DDocument doc) {
-
 		BaseDoc bd = new BaseDoc();
 		try {
-			bd.setTitle(GooCalUtil.convNull(doc.getItemValueString("Subject")));
-			bd.setContent(GooCalUtil.convNull(doc.getItemValueString("Body")));
+			String subject = doc.getItemValueString("Subject");
+			bd.setTitle(subject != null ? subject : "");
+			String body = doc.getItemValueString("Body");
+			bd.setContent(body != null ? body : "");
 
 			bd.setId(doc.getUniversalID());
 			bd.setRefId(IDTable.getGoogleUID(doc.getUniversalID()));
-			bd.setLocation(GooCalUtil.convNull(doc.getItemValueString("Location")));
+			String loc = doc.getItemValueString("Location");
+			bd.setLocation(loc != null ? loc : null);
 			bd.setLastUpdated(doc.getLastModified());
-			bd.setApptype(Integer.parseInt(GooCalUtil.convNull(doc.getItemValueString("AppointmentType"))));
+			String appointType = doc.getItemValueString("AppointmentType");
+			bd.setApptype(Integer.parseInt(appointType != null ? appointType : ""));
 
-			// if (doc.getItemValueString("Repeats").equals("1")) { <-- In some
-			// environment, it ends up with NullPonterException.
 			if (doc.hasItem("Repeats")) {
-				bd.setRecur(analyzeRecurrence(doc.getItemValue("CalendarDateTime")));
-
+				List itemValue = doc.getItemValue("CalendarDateTime");
+				bd.setRecur(analyzeRecurrence(itemValue));
 			} else {
 				BaseRecur recur = new BaseRecur();
 				recur.setFrequency(Constants.FREQ_NONE);
@@ -281,6 +291,36 @@ public class NotesCalendarDAO implements BaseDAO {
 		return bd;
 	}
 
+	private void displayDoc(DDocument doc) {
+		Iterator i = doc.getItems();
+		System.out.println("-------------- " + doc.getItemValueString("Subject") + " -----------------");
+		while (i.hasNext()) {
+
+			String next = i.next().toString();
+			try {
+				String s = doc.getItemValueString(next);
+				if (s.length() > 0) {
+
+					if (!s.startsWith("CN=") && !next.equals("Body")) {
+						System.out.print(next + " = ");
+						System.out.println(s);
+					}
+				} else {
+					List itemValue = doc.getItemValue(next);
+					if (itemValue.size() > 0) {
+						System.out.print(next + " = ");
+						System.out.println(itemValue);
+					} else {
+						// System.out.println();
+					}
+				}
+			} catch (Exception e) {
+				System.out.println(next + " --> " + e.getMessage());
+			}
+		}
+		System.out.println("-------------------------------");
+	}
+
 	private BaseRecur analyzeRecurrence(List vdt) {
 
 		BaseRecur recur = new BaseRecur();
@@ -292,7 +332,7 @@ public class NotesCalendarDAO implements BaseDAO {
 			recur.setFrequency(Constants.FREQ_NONE);
 			return recur;
 		}
-
+		recur.setCount(vdt.size());
 		int i;
 		for (i = 1; vdt.size() > i; i++) {
 

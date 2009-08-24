@@ -1,15 +1,9 @@
 package com.googlecode.syncnotes2google;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Calendar;
 
 import com.google.gdata.client.calendar.CalendarService;
-import com.google.gdata.data.extensions.Recurrence;
 import com.google.gdata.util.AuthenticationException;
-import com.googlecode.syncnotes2google.dao.BaseRecur;
-import com.googlecode.syncnotes2google.dao.GoogleCalendarDAO;
-import com.googlecode.syncnotes2google.dao.NotesCalendarDAO;
 
 import de.bea.domingo.DDatabase;
 import de.bea.domingo.DNotesException;
@@ -20,38 +14,21 @@ import de.bea.domingo.DSession;
 public class Factory {
 
 	private static Factory instance = null;
-	private static DSession notesSession = null;
-	private static Settings settings = null;
-	private static CalendarService calendarService = null;
-	private static GoogleCalendarDAO googleCalendarDAO = null;
-	private static NotesCalendarDAO notesCalendarDAO = null;
-	private static DDatabase gcsDatabase = null;
-	private static DDatabase mailDatabase = null;
-
-	// Terada add for LOG BEGIN
-	private static Log log = null;
-
-	// Terada add for LOG END
+	private DSession notesSession = null;
+	private Settings settings = null;
+	private CalendarService calendarService = null;
+	private DDatabase mailDatabase = null;
 
 	private Factory() {
 	}
 
-	public static void freeNotesObject() {
-		// try {
-		if (gcsDatabase != null) {
-			// gcsDatabase.recycle();
-		}
+	public void freeNotesObject() {
 		if (mailDatabase != null) {
-			// mailDatabase.recycle();
+			mailDatabase = null;
 		}
 		if (notesSession != null) {
-			// notesSession.recycle();
+			 notesSession=null;
 		}
-		// } catch (DNotesException e) {
-		// e.printStackTrace();
-		// GooCalUtil.logStackTrace(e);
-		// System.exit(-1);
-		// }
 	}
 
 	public static Factory getInstance() {
@@ -61,23 +38,22 @@ public class Factory {
 		return instance;
 	}
 
-	public static DSession getNotesSession() {
+	public DSession getNotesSession() {
 		if (notesSession == null) {
 			try {
 				// NotesThread.sinitThread();
 				DNotesFactory factory = DNotesFactory.getInstance();
 				notesSession = factory.getSession();
 			} catch (DNotesRuntimeException e) {
-				Factory.getLog().error("Cannot open Notes Session : " + e.getMessage());
+				System.out.println("Cannot open Notes Session : " + e.getMessage());
 				e.printStackTrace();
-				GooCalUtil.logStackTrace(e);
 				System.exit(-1);
 			}
 		}
 		return notesSession;
 	}
 
-	public static Settings getSettings() {
+	public Settings getSettings() {
 		if (settings == null) {
 			// try {
 			// DNotesFactory factory =DNotesFactory.getInstance();
@@ -101,7 +77,7 @@ public class Factory {
 			sdt.add(Calendar.DAY_OF_YEAR, -14);
 			settings.setSyncStartDate(sdt);
 			Calendar edt = Calendar.getInstance();
-			edt.add(Calendar.DAY_OF_YEAR, 14);
+			edt.add(Calendar.MONTH, +3);
 			settings.setSyncEndDate(edt);
 
 			// convert lotus.domino.DateTime to xs:date format.
@@ -136,33 +112,7 @@ public class Factory {
 		return settings;
 	}
 
-	// Terada add for LOG BEGIN
-	public static Log getLog() {
-		if (log == null) {
-			try {
-				// DDatabase db = Factory.getGCSDatabase();
-				// DView view = db.getView(Constants.GOOCALSYNC_LOG_VIEW);
-				// DDocument doc = (DDocument)view.getAllDocuments().next();
-				// if (doc == null) {
-				// doc = db.createDocument();
-				// doc.appendItemValue("Form", "Log");
-				// doc.appendItemValue("Target","this");
-				// doc.appendItemValue("LogMessage","");
-				// doc.save(true);
-				// }
-				log = new Log();
-			} catch (DNotesRuntimeException e) {
-				e.printStackTrace();
-				GooCalUtil.logStackTrace(e);
-				System.exit(-1);
-			}
-		}
-		return log;
-	}
-
-	// Terada add for LOG END
-
-	public static CalendarService getCalendarService() {
+	public CalendarService getCalendarService() {
 
 		if (calendarService == null) {
 			Settings mySets = getSettings();
@@ -178,71 +128,29 @@ public class Factory {
 			// System.setProperty("https.proxyUserName", mySets.getProxyUserName());
 			// System.setProperty("https.proxyPassword", mySets.getProxyPassword());
 			// }
-			calendarService = new CalendarService("Notes2GooCalDontWork");
+			calendarService = new CalendarService("SyncNotes2Google");
 			try {
 				calendarService.setUserCredentials(mySets.getGoogleAccountName(), mySets.getGooglePassword());
 			} catch (AuthenticationException e) {
-				Factory.getLog().error("Cannot connect to Google");
-				Factory.getLog().error("    Account name       : " + mySets.getGoogleAccountName());
-				Factory.getLog().error("    Account password   : " + mySets.getGooglePassword());
-				Factory.getLog().error("    Message from Google: " + e.getMessage());
 				e.printStackTrace();
-				GooCalUtil.logStackTrace(e);
 				System.exit(-1);
 			}
 		}
 		return calendarService;
 	}
 
-	public static GoogleCalendarDAO getGoogleCalendarDAO() {
-		if (googleCalendarDAO == null) {
-			googleCalendarDAO = new GoogleCalendarDAO();
-		}
-		return googleCalendarDAO;
-	}
 
-	public static NotesCalendarDAO getNotesCalendarDAO() {
-		if (notesCalendarDAO == null) {
-			notesCalendarDAO = new NotesCalendarDAO();
-		}
-		return notesCalendarDAO;
-	}
-
-	// public static DDatabase getGCSDatabase () {
-	//	
-	// if (gcsDatabase == null) {
-	// try {
-	// gcsDatabase = getNotesSession().getDatabase("", Constants.GOOCALSYNC_DB_FILE);
-	// if (gcsDatabase.isOpen() == false) {
-	// gcsDatabase.open();
-	// }
-	// return gcsDatabase;
-	// } catch (DNotesException e) {
-	// Factory.getLog().error("Cannot open GooCalSync database :" + Constants.GOOCALSYNC_DB_FILE);
-	// e.printStackTrace();
-	// GooCalUtil.logStackTrace(e);
-	// System.exit(-1);
-	// }
-	// }
-	// return gcsDatabase;
-	//	
-	// }
-
-	public static DDatabase getMailDatabase() {
+	public DDatabase getMailDatabase() {
 
 		if (mailDatabase == null) {
 			try {
-				mailDatabase = getNotesSession().getDatabase(Factory.getSettings().getDominoServer(), Factory.getSettings().getMailDbFilePath());
+				mailDatabase = getNotesSession().getDatabase(getSettings().getDominoServer(), getSettings().getMailDbFilePath());
 				if (mailDatabase.isOpen() == false) {
 					mailDatabase.open();
 				}
 				return mailDatabase;
 			} catch (DNotesException e) {
-				Factory.getLog().error("Cannot open mail database");
-				Factory.getLog().error("     Domino server :" + Factory.getSettings().getDominoServer());
-				Factory.getLog().error("     Mail Database :" + Factory.getSettings().getMailDbFilePath());
 				e.printStackTrace();
-				GooCalUtil.logStackTrace(e);
 				System.exit(-1);
 			}
 		}

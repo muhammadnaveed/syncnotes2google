@@ -7,11 +7,10 @@ import com.googlecode.syncnotes2google.dao.GoogleCalendarDAO;
 public class SyncService {
 
 	public void executeSync(BaseDAO fromDao, BaseDAO toDao) {
-		Settings mySets = Factory.getSettings();
+		Settings mySets = Factory.getInstance().getSettings();
 
-		Log l = Factory.getLog();
 
-		Factory.getLog().info("Start " + fromDao.getDirection() + " to " + toDao.getDirection() + " synchronization.");
+		System.out.println("Start " + fromDao.getDirection() + " to " + toDao.getDirection() + " synchronization.");
 
 		BaseDoc entry = fromDao.getFirstEntry();
 		while (entry != null) {
@@ -26,21 +25,21 @@ public class SyncService {
 						// check if entry is recurrence.
 						if (entry.getRecur() != null) {
 							if (fromDao instanceof GoogleCalendarDAO) {
-								l.warn("Insert warning:Recurrence calendar entry is not supported to sync Google to Notes.");
-								l.warn("  Title : " + entry.getTitle());
+								System.out.println("Insert warning:Recurrence calendar entry is not supported to sync Google to Notes.");			
+								System.out.println("  Title : " + entry.getTitle());
 								entry = fromDao.getNextEntry();
 								continue;
 							}
 							// Google don't accept too much number of recurrence date.
 							if (entry.getRecur().getRdate() != null) {
 								if (entry.getRecur().getRdate().length > 100) {
-									Factory.getLog().warn("This type of entry is not supported by GooCalSync : " + entry.getTitle());
+									System.out.println("This type of entry is not supported by GooCalSync : " + entry.getTitle());
 									entry = fromDao.getNextEntry();
 									continue;
 								}
 							}
 						}
-						Factory.getLog().debug("executing insert: " + entry.getTitle());
+						System.out.println("executing insert: " + entry.getTitle());
 						insert(toDao, entry);
 					}
 				}
@@ -48,11 +47,11 @@ public class SyncService {
 				BaseDoc toEntry = toDao.select(uid);
 				if (toEntry == null) {
 					if (!mySets.getSyncDirection().equals(Constants.NOTES_TO_GOOGLE)) {
-						Factory.getLog().debug("executing delete " + entry.getTitle());
+						System.out.println("executing delete " + entry.getTitle());
 						delete(fromDao, entry);
 					}
 				} else {
-					if (entry.getLastUpdated().after(mySets.getSyncLastDateTime())) {
+					if (entry.getLastUpdated().after(mySets.getSyncLastDateTime()) && entry.getLastUpdated().before(mySets.getSyncStart())) {
 						if (mySets.getSyncDirection().equals(Constants.BI_DIRECTION)) {
 							if (fromDao instanceof GoogleCalendarDAO) {
 								// When both of google and notes calendar are updated, notes
@@ -67,27 +66,27 @@ public class SyncService {
 									continue;
 								}
 								if (entry.getRecur() != null) {
-									l.warn("Update warning:Recurrence calendar entry is not supported to sync Google to Notes.");
-									l.warn("  Title : " + entry.getTitle());
+									System.out.println("Update warning:Recurrence calendar entry is not supported to sync Google to Notes.");
+									System.out.println("  Title : " + entry.getTitle());
 									entry = fromDao.getNextEntry();
 									continue;
 								}
-								Factory.getLog().debug("executing update (BI_DIRECTION): " + entry.getTitle());
+								System.out.println("executing update (BI_DIRECTION): " + entry.getTitle());
 								update(toDao, entry);
 							} else {
-								Factory.getLog().debug("executing update (BI_DIRECTION): " + entry.getTitle());
+								System.out.println("executing update (BI_DIRECTION): " + entry.getTitle());
 								update(toDao, entry);
 							}
 						} else if (mySets.getSyncDirection().equals(fromDao.getDirection())) {
 							// check if entry is recurrence.
 							if (fromDao instanceof GoogleCalendarDAO && entry.getRecur() != null) {
-								l.warn("Update warning:Recurrence calendar entry is not supported to sync Google to Notes.");
-								l.warn("  Title : " + entry.getTitle());
+								System.out.println("Update warning:Recurrence calendar entry is not supported to sync Google to Notes.");
+								System.out.println("  Title : " + entry.getTitle());
 								entry = fromDao.getNextEntry();
 								continue;
 							}
 
-							Factory.getLog().debug("executing update (" + fromDao.getDirection() + "): " + entry.getTitle());
+							System.out.println("executing update (" + fromDao.getDirection() + "): " + entry.getTitle());
 							update(toDao, entry);
 
 						} else {
