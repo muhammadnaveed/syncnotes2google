@@ -9,7 +9,6 @@ public class SyncService {
 	public void executeSync(BaseDAO fromDao, BaseDAO toDao) {
 		Settings mySets = Factory.getInstance().getSettings();
 
-
 		System.out.println("Start " + fromDao.getDirection() + " to " + toDao.getDirection() + " synchronization.");
 
 		BaseDoc entry = fromDao.getFirstEntry();
@@ -25,7 +24,7 @@ public class SyncService {
 						// check if entry is recurrence.
 						if (entry.getRecur() != null) {
 							if (fromDao instanceof GoogleCalendarDAO) {
-								System.out.println("Insert warning:Recurrence calendar entry is not supported to sync Google to Notes.");			
+								System.out.println("Insert warning:Recurrence calendar entry is not supported to sync Google to Notes.");
 								System.out.println("  Title : " + entry.getTitle());
 								entry = fromDao.getNextEntry();
 								continue;
@@ -102,7 +101,12 @@ public class SyncService {
 
 	private void insert(BaseDAO dao, BaseDoc entry) {
 		String insert = dao.insert(entry);
-		IDTable.insert(entry.getId(), insert);
+		if (dao instanceof GoogleCalendarDAO) {
+			IDTable.insert(insert, entry.getId());
+		} else {
+			IDTable.insert(entry.getId(), insert);
+
+		}
 	}
 
 	private void delete(BaseDAO dao, BaseDoc entry) {
