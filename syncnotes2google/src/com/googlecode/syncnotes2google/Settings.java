@@ -19,11 +19,9 @@ public class Settings {
 	private String MailDbFilePath;
 	private Calendar syncStartDate;
 	private Calendar syncEndDate;
-	private String SyncDirection;
-	private String SyncDelete;
+	private String syncDirection;
 	private String SyncPriority;
 	private Calendar syncLastDateTime;
-	private Document setDoc;
 	private String ProxyHost;
 	private String ProxyPort;
 	private String ProxyUserName;
@@ -98,12 +96,11 @@ public class Settings {
 	}
 
 	public String getSyncDirection() {
-//		return Constants.NOTES_TO_GOOGLE;
-		return Constants.BI_DIRECTION;
+		return syncDirection;
 	}
 
 	public void setSyncDirection(String syncDirection) {
-		SyncDirection = syncDirection;
+		this.syncDirection = syncDirection;
 	}
 
 

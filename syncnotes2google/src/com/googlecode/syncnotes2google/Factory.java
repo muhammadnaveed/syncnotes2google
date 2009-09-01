@@ -27,7 +27,7 @@ public class Factory {
 			mailDatabase = null;
 		}
 		if (notesSession != null) {
-			 notesSession=null;
+			notesSession = null;
 		}
 	}
 
@@ -62,16 +62,19 @@ public class Factory {
 			// DView view = db.getView("ConfigurationView");
 			// DDocument doc = view.getAllDocumentByKey(arg0, arg1);
 			settings = new Settings();
-			settings.setGoogleAccountName("nnnn@gmail.com");
-			settings.setGooglePassword("****");
-	        
-			// Notes File/Preferenses/Location Preferences.../Servers/'Home/mail server'
-	        settings.setDominoServer("sever");
-	        // Notes File/Preferenses/Location Preferences.../Mail/'Mail file'
-	        settings.setMailDbFilePath("mail.nsf");
+			 settings.setGoogleAccountName("nnnn@gmail.com");
+			 settings.setGooglePassword("****");
+				        
+			 // Notes File/Preferenses/Location Preferences.../Servers/'Home/mail server'
+			 settings.setDominoServer("sever");
+			 // Notes File/Preferenses/Location Preferences.../Mail/'Mail file'
+			 settings.setMailDbFilePath("mail.nsf");
+			
+			 // Google calender name to sync with
+			 settings.setCalendarName("Calendar");
 
-	        // Google calender name to sync with
-	        settings.setCalendarName("Calendar");
+			// settings.setSyncDirection( Constants.NOTES_TO_GOOGLE);
+			settings.setSyncDirection(Constants.BI_DIRECTION);
 
 			Calendar sdt = Calendar.getInstance();
 			sdt.add(Calendar.DAY_OF_YEAR, -14);
@@ -138,7 +141,6 @@ public class Factory {
 		}
 		return calendarService;
 	}
-
 
 	public DDatabase getMailDatabase() {
 
