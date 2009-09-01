@@ -158,7 +158,9 @@ public class NotesCalendarDAO implements BaseDAO {
 			break;
 		}
 
-		doc.computeWithForm(true);
+		if(!doc.computeWithForm(true)){
+			return null;
+		}
 		doc.save(true, true);
 		return doc.getUniversalID();
 		// } catch (NotesException e) {

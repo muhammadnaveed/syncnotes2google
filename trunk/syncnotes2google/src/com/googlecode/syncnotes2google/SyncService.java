@@ -19,7 +19,7 @@ public class SyncService {
 				// This if statement is for suppressing warning messages
 				// "Recurrence calenar entry is not supported"
 				// Without this if statement, warning message would appear on every time to sync.
-				if (entry.getLastUpdated().after(mySets.getSyncLastDateTime())) {
+				if (entry.getLastUpdated().after(mySets.getSyncLastDateTime())&& entry.getLastUpdated().before(mySets.getSyncStart())) {
 					if (mySets.getSyncDirection().equals(fromDao.getDirection()) || mySets.getSyncDirection().equals(Constants.BI_DIRECTION)) {
 						// check if entry is recurrence.
 						if (entry.getRecur() != null) {

@@ -31,6 +31,7 @@ public class Settings {
 	private Calendar syncStart;
 
 	public Settings() {
+		syncStart = Calendar.getInstance();
 		try {
 			File file = new File("./LastSyncTime");
 			syncLastDateTime = Calendar.getInstance();
@@ -43,7 +44,6 @@ public class Settings {
 			if (line != null) {
 				syncLastDateTime.setTimeInMillis(Long.parseLong(line.trim()));
 			}
-			syncStart = Calendar.getInstance();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
