@@ -6,7 +6,6 @@ import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
-import java.util.TimeZone;
 
 import com.google.gdata.client.calendar.CalendarQuery;
 import com.google.gdata.client.calendar.CalendarService;
@@ -29,6 +28,9 @@ import com.googlecode.syncnotes2google.IDTable;
 import com.googlecode.syncnotes2google.Settings;
 
 public class GoogleCalendarDAO implements BaseDAO {
+	private final static SimpleDateFormat DATE = new SimpleDateFormat("yyyyMMdd");
+	private final static SimpleDateFormat DATE_TIME = new SimpleDateFormat("yyyyMMdd'T'HHmmss");
+
 	private CalendarEventEntry workEntry = null;
 	private List<CalendarEventEntry> workFeedList = null;
 	private int counter = 0;
@@ -82,7 +84,7 @@ public class GoogleCalendarDAO implements BaseDAO {
 
 			// if GMT+5 up, then add 1 day.
 			// These steps are for all day event specification on Google.
-			
+
 			startTime.setDateOnly(true);
 			endTime.setDateOnly(true);
 			if (startTime.getTzShift() > 0) {
@@ -104,12 +106,12 @@ public class GoogleCalendarDAO implements BaseDAO {
 			Recurrence recur = new Recurrence();
 			recur.setValue(createRecurStr(bd));
 			myEntry.setRecurrence(recur);
-		} else if(bd.getApptype() == Constants.ALL_DAY_EVENT){
+		} else if (bd.getApptype() == Constants.ALL_DAY_EVENT) {
 			When eventTimes = new When();
 			eventTimes.setStartTime(startTime);
 			eventTimes.setEndTime(endTime);
 			myEntry.addTime(eventTimes);
-		}else{
+		} else {
 			When eventTimes = new When();
 			eventTimes.setStartTime(startTime);
 			eventTimes.setEndTime(endTime);
@@ -152,9 +154,9 @@ public class GoogleCalendarDAO implements BaseDAO {
 					workEntry.removeExtension(recur);
 					workEntry.addTime(when);
 				}
+				DateTime startTime = new DateTime(bd.getStartDateTime().getTime(), bd.getStartDateTime().getTimeZone());
+				DateTime endTime = new DateTime(bd.getEndDateTime().getTime(), bd.getEndDateTime().getTimeZone());
 				if (bd.getApptype() == Constants.ALL_DAY_EVENT || bd.getApptype() == Constants.ANNIVERSARY) {
-					DateTime startTime = new DateTime(bd.getStartDateTime().getTime(), bd.getStartDateTime().getTimeZone());
-					DateTime endTime = new DateTime(bd.getEndDateTime().getTime(), bd.getEndDateTime().getTimeZone());
 
 					// 144000000 is not one day. So comment these lines.
 					// startTime.setValue(startTime.getValue()+144000000); // 144000000 is one day
@@ -176,14 +178,14 @@ public class GoogleCalendarDAO implements BaseDAO {
 
 					startTime.setDateOnly(true);
 					endTime.setDateOnly(true);
-					when.setStartTime(startTime);
-					when.setEndTime(endTime);
 				} else {
 					// when.setStartTime(new DateTime(bd.getStartDateTime().getTime(),
 					// bd.getStartDateTime().getTimeZone()));
 					// when.setEndTime(new DateTime(bd.getEndDateTime().getTime(),
 					// bd.getEndDateTime().getTimeZone()));
 				}
+				when.setStartTime(startTime);
+				when.setEndTime(endTime);
 			}
 
 			URL editUrl = new URL(workEntry.getEditLink().getHref());
@@ -195,7 +197,7 @@ public class GoogleCalendarDAO implements BaseDAO {
 			Where location = new Where(loc, loc, loc);
 			workEntry.addLocation(location);
 
-			CalendarEventEntry updatedEntry = (CalendarEventEntry) Factory.getInstance().getCalendarService().update(editUrl, workEntry);
+			/* CalendarEventEntry updatedEntry = (CalendarEventEntry) */Factory.getInstance().getCalendarService().update(editUrl, workEntry);
 
 		} catch (MalformedURLException e) {
 			System.out.println("Calendar entry being handled ...");
@@ -211,7 +213,6 @@ public class GoogleCalendarDAO implements BaseDAO {
 	}
 
 	public BaseDoc select(String id) {
-
 		Factory factory = Factory.getInstance();
 		URL entryUrl;
 		workEntry = null;
@@ -239,13 +240,6 @@ public class GoogleCalendarDAO implements BaseDAO {
 		return null;
 	}
 
-	/*
-	 * This method deletes Google calendar entry specified by iCal UID.
-	 * 
-	 * Parameters: id : iCal UID on Google calendar. ex) dklaowklsdfj3osdfj
-	 * 
-	 * created by Junya Terada on 2009/05/07
-	 */
 	public void delete(String id) {
 
 		Factory factory = Factory.getInstance();
@@ -271,15 +265,6 @@ public class GoogleCalendarDAO implements BaseDAO {
 
 	}
 
-	/*
-	 * This method returns the first Google calendar entry after date provided by a parameter.
-	 * 
-	 * Parameters: syncStartDate : from which calendar entries are synchronized. ex) 2009/05/07
-	 * 
-	 * Return values: BaseDoc object in which each first entry values are stored.
-	 * 
-	 * created by Junya Terada on 2009/05/07 updated by Muneyuki Ohkawa on 2009/06/03
-	 */
 	public BaseDoc getFirstEntry() {
 
 		Factory factory = Factory.getInstance();
@@ -335,14 +320,6 @@ public class GoogleCalendarDAO implements BaseDAO {
 
 	}
 
-	/*
-	 * This method returns the next Google calendar entry after an workEntry which works as a
-	 * pointer to an entry on calendar feed.
-	 * 
-	 * Return values: BaseDoc object in which each next entry values are stored.
-	 * 
-	 * created by Junya Terada on 2009/05/07
-	 */
 	public BaseDoc getNextEntry() {
 
 		if (workFeedList == null || workFeedList.size() <= counter) {
@@ -409,89 +386,6 @@ public class GoogleCalendarDAO implements BaseDAO {
 		}
 		return c;
 	}
-
-	/*
-	 * This method analyzes iCal recurrence pattern like below to set parameters on BaseDoc received
-	 * as input parameters.
-	 * 
-	 * ** Normal Weekly pattern *** DTSTART;TZID=Asia/Tokyo:20090519T140000
-	 * DTEND;TZID=Asia/Tokyo:20090519T150000 RRULE:FREQ=WEEKLY;BYDAY=TU;WKST=MO
-	 * 
-	 * DTSTART;TZID=Asia/Tokyo:20090520T113000 DTEND;TZID=Asia/Tokyo:20090520T123000
-	 * RRULE:FREQ=WEEKLY;WKST=MO;UNTIL=20090630T023000Z
-	 * 
-	 * DTSTART;TZID=Asia/Tokyo:20090519T100000 DTEND;TZID=Asia/Tokyo:20090519T110000
-	 * RRULE:FREQ=WEEKLY;WKST=MO;UNTIL=20090610T010000Z;INTERVAL=3;BYDAY=TU,WE
-	 * 
-	 * DTSTART;VALUE=DATE:20090518 DTEND;VALUE=DATE:20090519
-	 * RRULE:FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR;WKST=MO
-	 * 
-	 * DTSTART;TZID=Asia/Tokyo:20090519T123000 DTEND;TZID=Asia/Tokyo:20090519T133000
-	 * RRULE:FREQ=WEEKLY;BYDAY=TH;WKST=MO
-	 * 
-	 * DTSTART;TZID=Asia/Tokyo:20090521T210000 DTEND;TZID=Asia/Tokyo:20090521T220000
-	 * RRULE:FREQ=WEEKLY;BYDAY=MO,WE,FR;WKST=MO
-	 * 
-	 * DTSTART;TZID=Asia/Tokyo:20090519T103000 DTEND;TZID=Asia/Tokyo:20090519T113000
-	 * RRULE:FREQ=WEEKLY;WKST=MO;UNTIL=20090825T013000Z;BYDAY=TU
-	 * EXDATE;TZID=Asia/Tokyo:20090811T103000 EXDATE;TZID=Asia/Tokyo:20090602T103000
-	 * EXDATE;TZID=Asia/Tokyo:20090714T103000
-	 * 
-	 * DTSTART;VALUE=DATE:20090521 DTEND;VALUE=DATE:20090522
-	 * RRULE:FREQ=MONTHLY;WKST=MO;UNTIL=20090820;BYDAY=3TH
-	 * 
-	 * DTSTART;TZID=Asia/Tokyo:20090519T143000 DTEND;TZID=Asia/Tokyo:20090519T153000
-	 * RRULE:FREQ=MONTHLY;BYDAY=3TU;WKST=MO
-	 * 
-	 * DTSTART;TZID=Asia/Tokyo:20090519T123000 DTEND;TZID=Asia/Tokyo:20090519T133000
-	 * RRULE:FREQ=MONTHLY;WKST=MO;BYMONTHDAY=19
-	 * 
-	 * DTSTART;TZID=Asia/Tokyo:20090519T133000 DTEND;TZID=Asia/Tokyo:20090519T143000
-	 * RRULE:FREQ=YEARLY;UNTIL=20140519T043000Z;WKST=MO
-	 * 
-	 * DTSTART;VALUE=DATE:20090519 DTEND;VALUE=DATE:20090520 RRULE:FREQ=DAILY;UNTIL=20090521;WKST=MO
-	 * 
-	 * DTSTART;VALUE=DATE:20090519 DTEND;VALUE=DATE:20090520 RRULE:FREQ=DAILY;UNTIL=20090521;WKST=MO
-	 * EXDATE;VALUE=DATE:20090520
-	 * 
-	 * DTSTART;TZID=Asia/Tokyo:20090512T090000 DTEND;TZID=Asia/Tokyo:20090512T100000
-	 * RDATE;VALUE=PERIOD:20090511T170000/20090511T180000,20090518T170000/20090518
-	 * T180000,20090525T170000/20090525T180000,20090601T170000/20090601T180000,200
-	 * 90608T170000/20090608T180000
-	 * 
-	 * 
-	 * 
-	 * private void analyzeRecurrence(BaseDoc bd, String recurrenceValue) {
-	 * 
-	 * BaseRecur recur = Factory.getBaseRecur(); recur.setFrequency(Constants.FREQ_OTHER);
-	 * recur.setInterval(0); recur.setUntil("");
-	 * 
-	 * String[] recurrenceValueList = recurrenceValue.split("\n"); // extract each line to String
-	 * array.
-	 * 
-	 * String[] recurrenceValueDataList = null; for(String recurrenceValueData :
-	 * recurrenceValueList) { recurrenceValueDataList =
-	 * recurrenceValueData.split(":");//�l�ƃL�[�𕪂��� String key =
-	 * (recurrenceValueDataList[0]).split(";")[0];//����ɃL�[���������o�� String value =
-	 * recurrenceValueDataList[1]; if(key.equals("DTSTART") &&
-	 * ((recurrenceValueDataList[0]).split(";").length >=2)) { dtStart = convertToDateTime(value); }
-	 * if(key.equals("DTEND") && ((recurrenceValueDataList[0]).split(";").length >=2)) { dtEnd =
-	 * convertToDateTime(value); }
-	 * 
-	 * if(key.equals("RRULE")) { for(String valuedata : value.split(";")) { String tempvaluekey =
-	 * valuedata.split("=")[0]; String tempvaluedata = valuedata.split("=")[1];
-	 * 
-	 * if(tempvaluekey.equals("FREQ")) { this.freq = tempvaluedata; }
-	 * if(tempvaluekey.equals("INTERVAL")) { this.interval = Integer.parseInt(tempvaluedata); }
-	 * if(tempvaluekey.equals("BYDAY")) { this.byday = tempvaluedata.split(","); }
-	 * if(tempvaluekey.equals("BYMONTHDAY")) { this.bymonthday = Integer.parseInt(tempvaluedata); }
-	 * } } }
-	 * 
-	 * }
-	 */
-
-	private final static SimpleDateFormat DATE = new SimpleDateFormat("yyyyMMdd");
-	private final static SimpleDateFormat DATE_TIME = new SimpleDateFormat("yyyyMMdd'T'HHmmss");
 
 	/*
 	 * This method returns iCal recurrence value like below.
