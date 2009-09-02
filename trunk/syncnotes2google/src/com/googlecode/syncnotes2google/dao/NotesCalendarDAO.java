@@ -25,20 +25,11 @@ public class NotesCalendarDAO implements BaseDAO {
 	private List<BaseDoc> calDoc = new ArrayList<BaseDoc>();
 
 	public void delete(String unid) {
-
-		// try{
 		DDocument doc = Factory.getInstance().getMailDatabase().getDocumentByUNID(unid);
 		if (doc != null) {
 			doc.remove(true);
 			workDoc = null;
 		}
-		// }
-		// catch (DNotesException e){
-		// e.printStackTrace() ;
-		// GooCalUtil.logStackTrace(e);
-		// System.exit(-1);
-		// }
-
 	}
 
 	public BaseDoc getFirstEntry() {
@@ -95,12 +86,6 @@ public class NotesCalendarDAO implements BaseDAO {
 		}
 
 		return calDoc.isEmpty() ? null : calDoc.remove(0);
-		// } catch (NotesException e) {
-		// e.printStackTrace();
-		// GooCalUtil.logStackTrace(e);
-		// System.exit(-1);
-		// }
-		// return null;
 	}
 
 	public BaseDoc getNextEntry() {
@@ -108,8 +93,6 @@ public class NotesCalendarDAO implements BaseDAO {
 	}
 
 	public String insert(BaseDoc bd) {
-
-		// try {
 		DDocument doc = Factory.getInstance().getMailDatabase().createDocument();
 		doc.appendItemValue("Form", "Appointment");
 		doc.appendItemValue("Subject", bd.getTitle());
@@ -130,7 +113,7 @@ public class NotesCalendarDAO implements BaseDAO {
 
 			// In case that All_DAY_EVENT has duration, add all date to
 			// CalendarDateTime to show up on Notes calendar.
-			Vector resultdt = new Vector();
+			Vector<GregorianDateTime> resultdt = new Vector<GregorianDateTime>();
 			while (edt.after(sdt)) {
 				resultdt.addElement(new GregorianDateTime(sdt.getTime()));
 				sdt.add(Calendar.DAY_OF_YEAR, 1);
@@ -163,12 +146,6 @@ public class NotesCalendarDAO implements BaseDAO {
 		}
 		doc.save(true, true);
 		return doc.getUniversalID();
-		// } catch (NotesException e) {
-		// e.printStackTrace();
-		// GooCalUtil.logStackTrace(e);
-		// return null;
-		// }
-
 	}
 
 	public BaseDoc select(String unid) {
@@ -194,8 +171,6 @@ public class NotesCalendarDAO implements BaseDAO {
 	}
 
 	public void update(BaseDoc bd) {
-
-		// try {
 		workDoc.replaceItemValue("Subject", bd.getTitle());
 		workDoc.replaceItemValue("Body", bd.getContent());
 		workDoc.replaceItemValue("Location", bd.getLocation());
@@ -215,7 +190,7 @@ public class NotesCalendarDAO implements BaseDAO {
 
 			// In case that All_DAY_EVENT has duration, add all date to
 			// CalendarDateTime to show up on Notes calendar.
-			Vector resultdt = new Vector();
+			Vector<GregorianDateTime> resultdt = new Vector<GregorianDateTime>();
 			while (edt.after(sdt)) {
 				resultdt.addElement((new GregorianDateTime(sdt.getTime())));
 				sdt.add(Calendar.DAY_OF_YEAR, 1);
@@ -242,13 +217,6 @@ public class NotesCalendarDAO implements BaseDAO {
 		}
 		workDoc.computeWithForm(true);
 		workDoc.save(true, true);
-
-		// } catch (NotesException e) {
-		// e.printStackTrace();
-		// GooCalUtil.logStackTrace(e);
-		// System.exit(-1);
-		// }
-
 	}
 
 	private BaseDoc convDoc(DDocument doc) {
