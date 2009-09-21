@@ -1,14 +1,14 @@
 package com.googlecode.syncnotes2google;
 
 
-public class Constants {
+public interface Constants {
 
 	  public static final String NOTES_CALENDAR_VIEW = "Calendar";
 
 	  // Sync direction
-	  public static final String BI_DIRECTION = "BI_DIRECTION";
-	  public static final String NOTES_TO_GOOGLE = "Notes";
-	  public static final String GOOGLE_TO_NOTES = "Google";
+	  public static final String BI_DIRECTION = "bi-direction";
+	  public static final String NOTES_TO_GOOGLE = "notes-to-google";
+	  public static final String GOOGLE_TO_NOTES = "google-to-notes";
 	  
 	  // Appointment type
 	  public static final int NORMAL_EVENT = 0;

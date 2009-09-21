@@ -55,62 +55,7 @@ public class Factory {
 
 	public Settings getSettings() {
 		if (settings == null) {
-			// try {
-			// DNotesFactory factory =DNotesFactory.getInstance();
-			// DSession session = factory.getSession();
-			// DDatabase db = session.getDatabase(null, Constants.GOOCALSYNC_DB_FILE);
-			// DView view = db.getView("ConfigurationView");
-			// DDocument doc = view.getAllDocumentByKey(arg0, arg1);
 			settings = new Settings();
-			 settings.setGoogleAccountName("nnnn@gmail.com");
-			 settings.setGooglePassword("****");
-				        
-			 // Notes File/Preferenses/Location Preferences.../Servers/'Home/mail server'
-			 settings.setDominoServer("sever");
-			 // Notes File/Preferenses/Location Preferences.../Mail/'Mail file'
-			 settings.setMailDbFilePath("mail.nsf");
-			
-			 // Google calender name to sync with
-			 settings.setCalendarName("Calendar");
-
-			// settings.setSyncDirection( Constants.NOTES_TO_GOOGLE);
-			settings.setSyncDirection(Constants.BI_DIRECTION);
-
-			Calendar sdt = Calendar.getInstance();
-			sdt.add(Calendar.DAY_OF_YEAR, -14);
-			settings.setSyncStartDate(sdt);
-			Calendar edt = Calendar.getInstance();
-			edt.add(Calendar.MONTH, +3);
-			settings.setSyncEndDate(edt);
-
-			// convert lotus.domino.DateTime to xs:date format.
-			// // DateTime stdt = (DateTime) doc.getItemValue("syncStartDate").get(0);
-			// settings.setSyncStartDate(GooCalUtil.convNotesDateTimeToXS(stdt));
-
-			// settings.setSyncDirection(GooCalUtil.convNull(doc.getItemValueString("SyncDirection")));
-			// settings.setSyncDelete(GooCalUtil.convNull(doc.getItemValueString("SyncDelete")));
-			// settings.setSyncPriority(GooCalUtil.convNull(doc.getItemValueString("SyncPriority")));
-
-			// DateTime lastdt = (DateTime) doc.getItemValue("syncLastDateTime").get(0);
-			// settings.setSyncLastDateTime(GooCalUtil.convNotesDateTimeToXS(lastdt));
-
-			// Terada add for LOG BEGIN
-			// settings.setLogLevel(doc.getItemValue("LogLevel"));
-			// settings.setLogMode(GooCalUtil.convNull(doc.getItemValueString("LogMode")));
-			// Terada add for LOG END
-
-			// settings.setSetDoc(doc);
-
-			// settings.setProxyHost(GooCalUtil.convNull(doc.getItemValueString("ProxyHost")));
-			// settings.setProxyPort(GooCalUtil.convNull(doc.getItemValueString("ProxyPort")));
-			// settings.setProxyUserName(GooCalUtil.convNull(doc.getItemValueString("ProxyUserName")));
-			// settings.setProxyPassword(GooCalUtil.convNull(doc.getItemValueString("ProxyPassword")));
-
-			// } catch (DNotesException e) {
-			// e.printStackTrace();
-			// GooCalUtil.logStackTrace(e);
-			// System.exit(-1);
-			// }
 		}
 		return settings;
 	}

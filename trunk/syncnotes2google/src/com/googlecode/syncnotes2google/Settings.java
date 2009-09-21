@@ -3,14 +3,18 @@ package com.googlecode.syncnotes2google;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Calendar;
+import java.util.Properties;
+
+import com.ibm.sslight.tools.mainExit;
 
 import lotus.domino.Document;
 
-public class Settings {
+public class Settings implements Constants {
 
 	private String GoogleAccountName;
 	private String GooglePassword;
@@ -42,9 +46,74 @@ public class Settings {
 			if (line != null) {
 				syncLastDateTime.setTimeInMillis(Long.parseLong(line.trim()));
 			}
+
+			Properties p = new Properties();
+			p.load(new FileInputStream("sync.properties"));
+			setGoogleAccountName(p.getProperty("google.account.email"));
+			setGooglePassword(p.getProperty("google.account.password"));
+			setCalendarName(p.getProperty("google.calendar.name", "Calendar"));
+
+			setDominoServer(p.getProperty("notes.domino.server"));
+			setMailDbFilePath(p.getProperty("notes.mail.db.file"));
+
+
+			String direction = p.getProperty("sync.direction");
+			if (!BI_DIRECTION.equals(direction) && !NOTES_TO_GOOGLE.equals(direction) && !GOOGLE_TO_NOTES.equals(direction)) {
+				System.out.println("Unknown direction: " + direction + " direction set to default.");
+				direction = NOTES_TO_GOOGLE;
+			}
+			setSyncDirection(direction);
+			String start = p.getProperty("sync.start");
+			int periodType;
+			int period;
+			try {
+				periodType = parsePeriodType(start);
+				period = parsePeriod(start);
+			} catch (FormatException e) {
+				periodType = Calendar.DAY_OF_YEAR;
+				period = 14;
+			}
+
+			Calendar sdt = Calendar.getInstance();
+			sdt.add(periodType, -period);
+			setSyncStartDate(sdt);
+
+			String end = p.getProperty("sync.end");
+			try {
+				periodType = parsePeriodType(end);
+				period = parsePeriod(end);
+			} catch (FormatException e) {
+				periodType = Calendar.MONTH;
+				period = 3;
+			}
+			Calendar edt = Calendar.getInstance();
+			edt.add(Calendar.MONTH, +6);
+			setSyncEndDate(edt);
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	private int parsePeriod(String start) throws FormatException {
+		try {
+			return Integer.parseInt(start.substring(0, start.length() - 1));
+		} catch (Exception e) {
+			throw new FormatException();
+		}
+	}
+
+	private int parsePeriodType(String start) throws FormatException {
+		if (start.endsWith("d")) {
+			return Calendar.DAY_OF_YEAR;
+		} else if (start.endsWith("m")) {
+			return Calendar.MONTH;
+		}
+		throw new FormatException();
+	}
+
+	private class FormatException extends Exception {
+
 	}
 
 	public String getGoogleAccountName() {
@@ -102,7 +171,6 @@ public class Settings {
 	public void setSyncDirection(String syncDirection) {
 		this.syncDirection = syncDirection;
 	}
-
 
 	public String getSyncPriority() {
 		return SyncPriority;
@@ -169,5 +237,9 @@ public class Settings {
 
 	public Calendar getSyncStart() {
 		return syncStart;
+	}
+	
+	public static void main(String[] args) {
+		new Settings();
 	}
 }
