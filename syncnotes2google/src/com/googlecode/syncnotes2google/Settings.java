@@ -238,8 +238,4 @@ public class Settings implements Constants {
 	public Calendar getSyncStart() {
 		return syncStart;
 	}
-	
-	public static void main(String[] args) {
-		new Settings();
-	}
 }
