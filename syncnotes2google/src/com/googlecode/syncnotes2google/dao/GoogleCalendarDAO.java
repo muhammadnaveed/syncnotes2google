@@ -495,4 +495,10 @@ public class GoogleCalendarDAO implements BaseDAO {
 	public String getDirection() {
 		return Constants.GOOGLE_TO_NOTES;
 	}
+	
+	@Override
+	public String toString() {
+		return "Google DAO";
+	}
+
 }

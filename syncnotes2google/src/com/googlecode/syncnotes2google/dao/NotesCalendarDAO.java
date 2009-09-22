@@ -419,4 +419,9 @@ public class NotesCalendarDAO implements BaseDAO {
 	public String getDirection() {
 		return Constants.NOTES_TO_GOOGLE;
 	}
+	
+	@Override
+	public String toString() {
+		return "Notes DAO";
+	}
 }
