@@ -45,7 +45,7 @@ public class SyncService {
 			} else {
 				BaseDoc toEntry = toDao.select(uid);
 				if (toEntry == null) {
-					if (!mySets.getSyncDirection().equals(Constants.NOTES_TO_GOOGLE)) {
+					if (mySets.getSyncDirection().equals(toDao.getDirection()) || mySets.getSyncDirection().equals(Constants.BI_DIRECTION)) {
 						System.out.println("executing delete " + entry.getTitle());
 						delete(fromDao, entry);
 					}

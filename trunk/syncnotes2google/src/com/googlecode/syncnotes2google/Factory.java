@@ -1,5 +1,7 @@
 package com.googlecode.syncnotes2google;
 
+import java.io.IOException;
+
 import com.google.gdata.client.calendar.CalendarService;
 import com.google.gdata.util.AuthenticationException;
 
@@ -51,7 +53,13 @@ public class Factory {
 
 	public Settings getSettings() {
 		if (settings == null) {
-			settings = new Settings();
+			try {
+				settings = new Settings();
+			} catch (IOException e) {
+				System.out.println("Could not instanciate Settings.");
+				e.printStackTrace();
+				System.exit(-1);
+			}
 		}
 		return settings;
 	}
@@ -87,7 +95,11 @@ public class Factory {
 
 		if (mailDatabase == null) {
 			try {
-				mailDatabase = getNotesSession().getDatabase(getSettings().getDominoServer(), getSettings().getMailDbFilePath());
+				Settings settings = getSettings();
+				DSession notesSession = getNotesSession();
+				String dominoServer = settings.getDominoServer();
+				String mailDbFilePath = settings.getMailDbFilePath();
+				mailDatabase = notesSession.getDatabase(dominoServer, mailDbFilePath);
 				if (mailDatabase.isOpen() == false) {
 					mailDatabase.open();
 				}
