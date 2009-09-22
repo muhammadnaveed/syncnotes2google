@@ -1,7 +1,5 @@
 package com.googlecode.syncnotes2google;
 
-import java.util.Calendar;
-
 import com.google.gdata.client.calendar.CalendarService;
 import com.google.gdata.util.AuthenticationException;
 
@@ -41,11 +39,9 @@ public class Factory {
 	public DSession getNotesSession() {
 		if (notesSession == null) {
 			try {
-				// NotesThread.sinitThread();
 				DNotesFactory factory = DNotesFactory.getInstance();
 				notesSession = factory.getSession();
 			} catch (DNotesRuntimeException e) {
-				System.out.println("Cannot open Notes Session : " + e.getMessage());
 				e.printStackTrace();
 				System.exit(-1);
 			}
