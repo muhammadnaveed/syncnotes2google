@@ -3,7 +3,7 @@
 @# The relative path to the Notes.jar from the notes installation. ex. Notes.jar or jvm/lib/ext/Notes.jar
 @set notes-jar=notes.jar
 @
-@set cPath=%CLASSPATH%;.\syncgoogle2notes.jar
+@set cPath=%CLASSPATH%;.\syncnotes2google.jar
 @set cPath=%cPath%;"%notes-path%\%notes-jar%"
 @set cPath=%cPath%;.\lib\domingo-1.5.1.jar
 @set cPath=%cPath%;.\lib\gdata-calendar-2.0.jar
