@@ -3,23 +3,18 @@ package com.googlecode.syncnotes2google;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Calendar;
 import java.util.Properties;
 
-import com.ibm.sslight.tools.mainExit;
-
-import lotus.domino.Document;
-
 public class Settings implements Constants {
 
 	private String GoogleAccountName;
 	private String GooglePassword;
 	private String calendarName;
+	private int reminderMinutes;
 	private String DominoServer;
 	private String MailDbFilePath;
 	private Calendar syncStartDate;
@@ -39,6 +34,7 @@ public class Settings implements Constants {
 		setGoogleAccountName(p.getProperty("google.account.email"));
 		setGooglePassword(p.getProperty("google.account.password"));
 		setCalendarName(p.getProperty("google.calendar.name", "Calendar"));
+		setReminderMinutes(Integer.parseInt(p.getProperty("google.calendar.reminderminutes","15")));
 
 		setDominoServer(p.getProperty("notes.domino.server"));
 		setMailDbFilePath(p.getProperty("notes.mail.db.file"));
@@ -111,7 +107,7 @@ public class Settings implements Constants {
 	}
 
 	private class FormatException extends Exception {
-
+    private static final long serialVersionUID = 2485854390296466112L;
 	}
 
 	public String getGoogleAccountName() {
@@ -228,11 +224,18 @@ public class Settings implements Constants {
 	public String getCalendarName() {
 		return calendarName;
 	}
+	
+	public int getReminderMinutes() {
+		return reminderMinutes;
+	}
 
 	public void setCalendarName(String calendarName) {
 		this.calendarName = calendarName;
 	}
 
+	public void setReminderMinutes(int reminderMinutes) {
+		this.reminderMinutes = reminderMinutes;
+	}
 	public Calendar getSyncStart() {
 		return syncStart;
 	}

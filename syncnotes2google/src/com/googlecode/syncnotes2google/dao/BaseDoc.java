@@ -23,10 +23,10 @@ public class BaseDoc {
 		l.append("ID             : " + id + "\n");
 		l.append("Title          : " + title + "\n");
 		l.append("Content        : " + content + "\n");
-		l.append("startDateTime  : " + df.format(startDateTime.getTime()) + "\n");
-		l.append("endDateTime    : " + df.format(endDateTime.getTime()) + "\n");
+		l.append("startDateTime  : " + (startDateTime!=null?df.format(startDateTime.getTime()):"") + "\n");
+		l.append("endDateTime    : " + (endDateTime!=null?df.format(endDateTime.getTime()):"") + "\n");
 		l.append("location       : " + location + "\n");
-		l.append("lastupdated    : " + (lastupdated==null?"":df.format(lastupdated.getTime())) + "\n");
+		l.append("lastupdated    : " + (lastupdated!=null?(lastupdated==null?"":df.format(lastupdated.getTime())):"") + "\n");
 		l.append("apptype        : " + apptype + "\n");
 		if (recur != null) {
 			l.append("frequency      : " + recur.getFrequency() + "\n");
