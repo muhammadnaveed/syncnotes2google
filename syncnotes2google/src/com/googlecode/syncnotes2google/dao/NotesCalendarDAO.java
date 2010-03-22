@@ -232,18 +232,21 @@ public class NotesCalendarDAO implements BaseDAO {
       bd.setId(doc.getUniversalID());
       bd.setRefId(IDTable.getGoogleUID(doc.getUniversalID()));
       String initloc = doc.getItemValueString("Location");
+      initloc = (initloc == null ? "" : initloc.trim());
       String room = doc.getItemValueString("Room");
+      room = (room == null ? "" : room.trim());
+
       String loc = "";
-      if (!initloc.trim().isEmpty() && !room.trim().isEmpty()) {
+      if (!initloc.isEmpty() && !room.trim().isEmpty()) {
         loc = "L: " + initloc + " R: " + room;
       }
-      if (initloc.trim().isEmpty() && !room.trim().isEmpty()) {
+      if (initloc.isEmpty() && !room.isEmpty()) {
         loc = room;
       }
-      if (!initloc.trim().isEmpty() && room.trim().isEmpty()) {
+      if (!initloc.isEmpty() && room.isEmpty()) {
         loc = initloc;
       }
-      bd.setLocation(loc != null ? loc : null);
+      bd.setLocation(loc);
       bd.setLastUpdated(doc.getLastModified());
       String appointType = doc.getItemValueString("AppointmentType");
       bd.setApptype(Integer.parseInt(appointType != null ? appointType : ""));
