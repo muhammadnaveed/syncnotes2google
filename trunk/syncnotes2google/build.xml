@@ -91,6 +91,7 @@
 				<include name="*.jar" />
 			</fileset>
 		</copy>
+		<touch file="${path.build}/${component.name}-${component.version}"/>
 		<delete>
 			<fileset dir="${path.dist}" includes="*.zip" />
 		</delete>
