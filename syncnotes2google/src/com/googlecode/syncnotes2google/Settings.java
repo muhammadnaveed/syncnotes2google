@@ -9,9 +9,12 @@ import java.io.InputStreamReader;
 import java.util.Calendar;
 import java.util.Properties;
 
+import com.googlecode.syncnotes2google.util.FileHelper;
+
 public class Settings implements Constants {
 
-	private String GoogleAccountName;
+	private static final String LAST_SYNC_TIME = "LastSyncTime";
+  private String GoogleAccountName;
 	private String GooglePassword;
 	private String calendarName;
 	private int reminderMinutes;
@@ -73,7 +76,7 @@ public class Settings implements Constants {
 		setSyncEndDate(edt);
 		syncStart = Calendar.getInstance();
 		try {
-			File file = new File("./LastSyncTime");
+			File file = FileHelper.getFile(LAST_SYNC_TIME);
 			syncLastDateTime = Calendar.getInstance();
 			if (!file.exists()) {
 				syncLastDateTime.setTimeInMillis(0);
@@ -181,7 +184,7 @@ public class Settings implements Constants {
 	public void saveSetDoc() {
 		// Todo save setings
 		try {
-			File file = new File("./LastSyncTime");
+      File file = FileHelper.getFile(LAST_SYNC_TIME);
 			FileWriter fw = new FileWriter(file);
 			fw.write(System.currentTimeMillis() + "\n");
 			fw.close();
@@ -239,4 +242,8 @@ public class Settings implements Constants {
 	public Calendar getSyncStart() {
 		return syncStart;
 	}
+	
+	public static void main(String[] args) throws IOException {
+    new Settings();
+  }
 }

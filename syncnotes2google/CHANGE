@@ -1,3 +1,9 @@
+0.0.4
+	Moved IDtable and LastSyncTime files from install directory to user.home/.syncnotes2google/ directory
+	
+0.0.3
+	Minor bug fix
+	
 0.0.2
 	Puts the location and room fields from Notes into the Google location field using "L: and R:" prefixes when they exist. 
 	Add a default reminder in Google.

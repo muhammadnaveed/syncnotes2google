@@ -1,0 +1,6 @@
+If you are updating from versions 0.0.1 - 0.0.3 to 0.0.4 or later copy
+your IDtable and LastSyncTime files from your old install directory to 
+%USER_HOME%/.syncnotes2google/ directory
+
+Make sure you transfer the settings from the old syncnotes2google.bat 
+and sync.properties to the new syncnotes2google.bat and sync.properties

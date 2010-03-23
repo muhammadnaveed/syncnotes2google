@@ -4,7 +4,7 @@
 
 	<target name="init" description="Initialize environment">
 		<property name="component.name" value="syncnotes2google" />
-		<property name="component.version" value="0.0.3" />
+		<property name="component.version" value="0.0.4" />
 		<property name="path.bin" value="bin" />
 		<property name="path.build" value="build" />
 		<property name="path.build.classes" value="build/classes" />
@@ -65,6 +65,11 @@
 		</delete>
 		<jar basedir="${path.build.classes}" jarfile="${path.build}/${component.name}.jar">
 			<include name="**/*.class" />
+			<manifest>
+				<section name="${component.name}">
+					<attribute name="Version" value="${component.version}" />
+				</section>
+			</manifest>
 		</jar>
 
 		<delete>
