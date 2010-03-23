@@ -11,16 +11,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.googlecode.syncnotes2google.util.FileHelper;
+
 public class IDTable extends Object {
 
-	private static IDTable table = null;
+	private static final String ID_TABLE = "IDTable";
+  private static IDTable table = null;
 	private List<IdPair> ids = new ArrayList<IdPair>();
 	private Map<String, IdPair> notes2google = new HashMap<String, IdPair>();
 	private Map<String, IdPair> google2notes = new HashMap<String, IdPair>();
 
 	private IDTable() {
 		try {
-			File file = new File("./IDTable");
+			File file = FileHelper.getFile(ID_TABLE);
 			if (!file.exists()) {
 				try {
 					saveTable();
@@ -130,7 +133,7 @@ public class IDTable extends Object {
 	}
 
 	private void saveTable() throws IOException {
-		File file = new File("./IDTable");
+    File file = FileHelper.getFile(ID_TABLE);
 		FileWriter fw = new FileWriter(file);
 		for (IdPair id : ids) {
 			fw.write(id.notesId + " " + id.googleId + "\n");
