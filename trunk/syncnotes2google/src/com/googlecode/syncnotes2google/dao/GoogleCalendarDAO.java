@@ -7,10 +7,13 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
 
+import lotus.notes.addins.changeman.functions.Evaluate;
+
 import com.google.gdata.client.calendar.CalendarQuery;
 import com.google.gdata.client.calendar.CalendarService;
 import com.google.gdata.data.DateTime;
 import com.google.gdata.data.PlainTextConstruct;
+import com.google.gdata.data.TextConstruct;
 import com.google.gdata.data.calendar.CalendarEntry;
 import com.google.gdata.data.calendar.CalendarEventEntry;
 import com.google.gdata.data.calendar.CalendarEventFeed;
@@ -20,6 +23,8 @@ import com.google.gdata.data.extensions.Recurrence;
 import com.google.gdata.data.extensions.Reminder;
 import com.google.gdata.data.extensions.When;
 import com.google.gdata.data.extensions.Where;
+import com.google.gdata.data.extensions.BaseEventEntry.EventStatus;
+import com.google.gdata.data.extensions.BaseEventEntry.Visibility;
 import com.google.gdata.data.extensions.Reminder.Method;
 import com.google.gdata.util.ResourceNotFoundException;
 import com.google.gdata.util.ServiceException;
@@ -356,6 +361,9 @@ public class GoogleCalendarDAO implements BaseDAO {
     // u.setTimeZone(value)(value)()(entry.getUpdated().getValue());
     bd.setLastUpdated(u);
 
+    // Visibility visibility = entry.getVisibility();
+    
+     
     Recurrence recur = entry.getRecurrence();
     OriginalEvent oe = entry.getOriginalEvent(); // which means RECURRENCE-ID is there.
     if (recur == null && oe == null) {
