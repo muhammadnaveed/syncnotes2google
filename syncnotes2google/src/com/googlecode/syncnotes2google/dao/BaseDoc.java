@@ -15,6 +15,8 @@ public class BaseDoc {
 	private int apptype; // Appointment type
 	private BaseRecur recur; // recurrence parameter
 	private String refId;
+  private boolean _private;
+  private boolean avalible;
 
 	// This method is for debugging.
 	public String toString() {
@@ -122,4 +124,20 @@ public class BaseDoc {
 	public void setRefId(String refId) {
 		this.refId = refId;
 	}
+
+  public void setPrivate(boolean _private) {
+    this._private = _private;
+  }
+
+  public boolean isPrivate() {
+    return _private;
+  }
+  
+  public void setAvalible(boolean avalible) {
+    this.avalible = avalible;
+  }
+  
+  public boolean isAvalible() {
+    return avalible;
+  }
 }

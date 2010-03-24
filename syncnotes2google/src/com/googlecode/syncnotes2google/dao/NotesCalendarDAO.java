@@ -247,6 +247,14 @@ public class NotesCalendarDAO implements BaseDAO {
         loc = initloc;
       }
       bd.setLocation(loc);
+
+      // "OrgConfidential" == 1 Private 
+      String markPrivate = doc.getItemValueString("OrgConfidential");
+      bd.setPrivate(markPrivate != null && markPrivate.trim().equals("1"));
+      // "BookFreeTime" == 1 Avalible
+      String markAvalible = doc.getItemValueString("BookFreeTime");
+      bd.setAvalible(markAvalible != null && markAvalible.trim().equals("1"));
+
       bd.setLastUpdated(doc.getLastModified());
       String appointType = doc.getItemValueString("AppointmentType");
       bd.setApptype(Integer.parseInt(appointType != null ? appointType : ""));
