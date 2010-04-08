@@ -237,13 +237,13 @@ public class NotesCalendarDAO implements BaseDAO {
       room = (room == null ? "" : room.trim());
 
       String loc = "";
-      if (!initloc.isEmpty() && !room.trim().isEmpty()) {
+      if (initloc.trim().length() != 0 && room.trim().length() != 0) {
         loc = "L: " + initloc + " R: " + room;
       }
-      if (initloc.isEmpty() && !room.isEmpty()) {
+      if (initloc.trim().length() == 0 && room.trim().length() != 0) {
         loc = room;
       }
-      if (!initloc.isEmpty() && room.isEmpty()) {
+      if (initloc.trim().length() != 0 && room.trim().length() == 0) {
         loc = initloc;
       }
       bd.setLocation(loc);
