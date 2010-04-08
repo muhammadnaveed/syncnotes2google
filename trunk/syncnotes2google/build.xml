@@ -4,7 +4,7 @@
 
 	<target name="init" description="Initialize environment">
 		<property name="component.name" value="syncnotes2google" />
-		<property name="component.version" value="0.0.4" />
+		<property name="component.version" value="0.0.5" />
 		<property name="path.bin" value="bin" />
 		<property name="path.build" value="build" />
 		<property name="path.build.classes" value="build/classes" />
